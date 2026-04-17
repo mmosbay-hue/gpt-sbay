@@ -342,15 +342,15 @@ textarea::placeholder{color:var(--text-light)}
 /* Quick mode buttons */
 .quick-modes{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;justify-content:center}
 .mode-btn{
-    display:flex;align-items:center;gap:4px;
-    padding:6px 13px;border:1.2px solid var(--red-border);border-radius:var(--radius-full);
+    display:inline-flex;align-items:center;gap:4px;
+    padding:5px 11px!important;border:1.2px solid var(--red-border);border-radius:var(--radius-full);
     background:var(--bg);color:var(--text);
-    font-size:10.5px;font-weight:600;cursor:pointer;font-family:inherit;
+    font-size:10px!important;line-height:1.1;font-weight:600;cursor:pointer;font-family:inherit;
     transition:all .15s;white-space:nowrap;
 }
 .mode-btn:hover{background:var(--red-light);border-color:var(--red);color:var(--red)}
 .mode-btn.active{background:var(--red);color:#fff;border-color:var(--red);box-shadow:0 2px 8px rgba(220,38,38,.3)}
-.mode-icon{font-size:11px}
+.mode-icon{font-size:10px!important;line-height:1}
 
 /* Quick reply buttons */
 .quick-reply-row{display:flex;flex-direction:column;gap:6px;margin-top:16px}

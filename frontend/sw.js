@@ -1,4 +1,4 @@
-const CACHE = 'sbayai-v1';
+const CACHE = 'sbayai-v2';
 const ASSETS = [
   '/chat',
   '/static/css/style.css',
