@@ -1,0 +1,22 @@
+{
+  "name": "SbayAI — Trợ lý AI thông minh",
+  "short_name": "SbayAI",
+  "description": "Chat AI thông minh với giọng nói 2 chiều, Custom GPT, Affiliate",
+  "start_url": "/chat",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "orientation": "any",
+  "icons": [
+    {"src": "/static/icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/static/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "categories": ["productivity", "utilities"],
+  "lang": "vi",
+  "screenshots": [],
+  "shortcuts": [
+    {"name": "Chat mới", "url": "/chat", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]},
+    {"name": "Affiliate", "url": "/affiliate", "icons": [{"src": "/static/icons/icon-192.png", "sizes": "192x192"}]}
+  ]
+}

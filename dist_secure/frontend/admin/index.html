@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — SbayAI</title>
+    <style>
+        :root { --bg:#0d1117; --bg2:#161b22; --text:#e6edf3; --muted:#8b949e; --accent:#19c37d; --border:#30363d; --error:#f85149; --success:#3fb950; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+        .layout { display:flex; min-height:100vh; }
+        .sidebar { width:220px; background:var(--bg2); border-right:1px solid var(--border); padding:16px; }
+        .sidebar h2 { font-size:16px; margin-bottom:24px; color:var(--accent); }
+        .sidebar a { display:block; padding:10px 12px; border-radius:8px; color:var(--muted); font-size:14px; margin-bottom:4px; cursor:pointer; }
+        .sidebar a:hover, .sidebar a.active { background:#1c2128; color:var(--text); }
+        .main { flex:1; padding:32px; }
+        h1 { font-size:28px; margin-bottom:24px; }
+
+        .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:32px; }
+        .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:20px; }
+        .stat-card .label { font-size:13px; color:var(--muted); margin-bottom:4px; }
+        .stat-card .value { font-size:28px; font-weight:700; }
+        .stat-card .value.green { color:var(--success); }
+
+        table { width:100%; border-collapse:collapse; background:var(--bg2); border-radius:12px; overflow:hidden; }
+        th, td { padding:12px 16px; text-align:left; border-bottom:1px solid var(--border); font-size:14px; }
+        th { color:var(--muted); font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:.05em; }
+        .badge { padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+        .badge-free { background:#1c2128; color:var(--muted); }
+        .badge-pro { background:rgba(25,195,125,.15); color:var(--accent); }
+        .badge-premium { background:rgba(136,87,255,.15); color:#a371f7; }
+        .badge-active { background:rgba(63,185,80,.15); color:var(--success); }
+        .badge-inactive { background:rgba(248,81,73,.15); color:var(--error); }
+        .btn-sm { padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--text); }
+        .btn-sm:hover { background:var(--border); }
+
+        #content > div { display:none; }
+        #content > div.active { display:block; }
+
+        @media (max-width:768px) { .stats-grid { grid-template-columns:repeat(2,1fr); } .sidebar { display:none; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a class="active" onclick="showTab('overview')">Overview</a>
+            <a onclick="showTab('users')">Users</a>
+            <a onclick="showTab('revenue')">Revenue</a>
+            <a onclick="showTab('logs')">System Logs</a>
+            <a href="/chat" style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px;">Back to Chat</a>
+        </div>
+        <div class="main">
+            <div id="content">
+                <!-- Overview -->
+                <div id="tab-overview" class="active">
+                    <h1>Dashboard</h1>
+                    <div class="stats-grid" id="statsGrid">
+                        <div class="stat-card"><div class="label">Total Users</div><div class="value" id="s-users">-</div></div>
+                        <div class="stat-card"><div class="label">Paying Users</div><div class="value green" id="s-paying">-</div></div>
+                        <div class="stat-card"><div class="label">Conversion Rate</div><div class="value" id="s-conversion">-</div></div>
+                        <div class="stat-card"><div class="label">Monthly Revenue</div><div class="value green" id="s-revenue">-</div></div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-card"><div class="label">Pro Users</div><div class="value" id="s-pro">-</div></div>
+                        <div class="stat-card"><div class="label">Premium Users</div><div class="value" id="s-premium">-</div></div>
+                        <div class="stat-card"><div class="label">New This Week</div><div class="value" id="s-new">-</div></div>
+                        <div class="stat-card"><div class="label">Total Revenue</div><div class="value green" id="s-total-rev">-</div></div>
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <div id="tab-users">
+                    <h1>User Management</h1>
+                    <table><thead><tr><th>Email</th><th>Name</th><th>Plan</th><th>Status</th><th>Messages</th><th>Action</th></tr></thead><tbody id="usersTable"></tbody></table>
+                </div>
+
+                <!-- Revenue -->
+                <div id="tab-revenue">
+                    <h1>Revenue</h1>
+                    <table><thead><tr><th>Date</th><th>User</th><th>Plan</th><th>Amount</th></tr></thead><tbody id="revenueTable"></tbody></table>
+                </div>
+
+                <!-- Logs -->
+                <div id="tab-logs">
+                    <h1>System Logs</h1>
+                    <table><thead><tr><th>Time</th><th>Level</th><th>Source</th><th>Message</th></tr></thead><tbody id="logsTable"></tbody></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const token = localStorage.getItem('token');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        function showTab(name) {
+            document.querySelectorAll('#content > div').forEach(d => d.classList.remove('active'));
+            document.getElementById('tab-' + name).classList.add('active');
+            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+            if (name === 'overview') loadStats();
+            if (name === 'users') loadUsers();
+            if (name === 'revenue') loadRevenue();
+            if (name === 'logs') loadLogs();
+        }
+
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/admin/stats', { headers });
+                const d = await res.json();
+                document.getElementById('s-users').textContent = d.total_users;
+                document.getElementById('s-paying').textContent = d.paying_users;
+                document.getElementById('s-conversion').textContent = d.conversion_rate + '%';
+                document.getElementById('s-revenue').textContent = '$' + d.monthly_revenue;
+                document.getElementById('s-pro').textContent = d.pro_users;
+                document.getElementById('s-premium').textContent = d.premium_users;
+                document.getElementById('s-new').textContent = d.new_users_week;
+                document.getElementById('s-total-rev').textContent = '$' + d.total_revenue;
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadUsers() {
+            try {
+                const res = await fetch('/api/admin/users', { headers });
+                const d = await res.json();
+                const tbody = document.getElementById('usersTable');
+                tbody.innerHTML = d.users.map(u => `<tr>
+                    <td>${u.email}</td><td>${u.name}</td>
+                    <td><span class="badge badge-${u.plan}">${u.plan}</span></td>
+                    <td><span class="badge badge-${u.is_active ? 'active' : 'inactive'}">${u.is_active ? 'Active' : 'Inactive'}</span></td>
+                    <td>${u.messages_total}</td>
+                    <td><button class="btn-sm" onclick="toggleUser('${u.id}')">${u.is_active ? 'Deactivate' : 'Activate'}</button></td>
+                </tr>`).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        async function toggleUser(id) {
+            await fetch(`/api/admin/users/${id}/toggle`, { method: 'POST', headers });
+            loadUsers();
+        }
+
+        async function loadRevenue() {
+            try {
+                const res = await fetch('/api/admin/revenue', { headers });
+                const d = await res.json();
+                document.getElementById('revenueTable').innerHTML = d.payments.map(p => `<tr>
+                    <td>${new Date(p.created_at).toLocaleDateString()}</td><td>${p.user_id}</td>
+                    <td><span class="badge badge-${p.plan}">${p.plan}</span></td><td>$${p.amount}</td>
+                </tr>`).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadLogs() {
+            try {
+                const res = await fetch('/api/admin/logs', { headers });
+                const d = await res.json();
+                document.getElementById('logsTable').innerHTML = d.logs.map(l => `<tr>
+                    <td>${new Date(l.created_at).toLocaleString()}</td><td>${l.level}</td><td>${l.source}</td><td>${l.message}</td>
+                </tr>`).join('') || '<tr><td colspan="4" style="color:var(--muted)">No logs yet</td></tr>';
+            } catch(e) { console.error(e); }
+        }
+
+        loadStats();
+    </script>
+</body>
+</html>

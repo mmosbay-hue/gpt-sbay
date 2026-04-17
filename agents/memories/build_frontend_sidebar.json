@@ -1,0 +1,17 @@
+{
+  "short_term": [
+    {
+      "key": "task_assigned",
+      "content": "Fix conversation list — proper date grouping, active state, delete with confirmation, refresh after actions",
+      "timestamp": "2026-04-16T20:56:03.819987"
+    }
+  ],
+  "long_term": [],
+  "tasks_done": [
+    {
+      "task": "Fix conversation list — proper date grouping, active state, delete with confirmation, refresh after actions",
+      "timestamp": "2026-04-16T20:59:07.590829"
+    }
+  ],
+  "insights": []
+}

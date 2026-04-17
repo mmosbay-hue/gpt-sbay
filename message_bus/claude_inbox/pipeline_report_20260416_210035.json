@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-04-16T21:00:35.627865",
+  "meeting_completed": true,
+  "tasks_total": 6,
+  "tasks_done": 6,
+  "qa_score": 65,
+  "qa_status": "fail",
+  "issues_count": 14,
+  "critical_issues": [
+    {
+      "file": "backend/sessions.py",
+      "line": 55,
+      "severity": "critical",
+      "issue": "Function delete_conversation is incomplete - missing closing parenthesis and function body",
+      "fix": "Complete the function definition: def delete_conversation(conv_id: str) -> bool: return bool(_store.pop(conv_id, None))"
+    }
+  ]
+}

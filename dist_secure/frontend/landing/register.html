@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up — SbayAI</title>
+    <style>
+        :root { --bg:#0d1117; --bg2:#161b22; --text:#e6edf3; --muted:#8b949e; --accent:#19c37d; --border:#30363d; --error:#f85149; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); display:flex; align-items:center; justify-content:center; min-height:100vh; }
+        .auth-card { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:48px; width:400px; max-width:90vw; }
+        .auth-card h1 { font-size:24px; margin-bottom:8px; text-align:center; }
+        .auth-card p { color:var(--muted); text-align:center; margin-bottom:32px; font-size:14px; }
+        label { display:block; font-size:14px; color:var(--muted); margin-bottom:6px; }
+        input { width:100%; padding:12px; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; margin-bottom:16px; outline:none; }
+        input:focus { border-color:var(--accent); }
+        .btn { width:100%; padding:14px; background:var(--accent); color:#fff; border:none; border-radius:8px; font-size:16px; font-weight:600; cursor:pointer; transition:background .2s; }
+        .btn:hover { background:#1a7f64; }
+        .btn:disabled { opacity:.5; cursor:not-allowed; }
+        .error { color:var(--error); font-size:13px; text-align:center; margin-bottom:16px; display:none; }
+        .links { text-align:center; margin-top:24px; font-size:14px; color:var(--muted); }
+        .links a { color:var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="auth-card">
+        <h1>Create your account</h1>
+        <p>Start chatting with AI for free</p>
+        <div class="error" id="error"></div>
+        <form id="registerForm">
+            <label>Name</label>
+            <input type="text" id="name" placeholder="Your name">
+            <label>Phone</label>
+            <input type="tel" id="phone" placeholder="0815340488" required>
+            <label>Email</label>
+            <input type="email" id="email" placeholder="you@example.com" required>
+            <label>Password</label>
+            <input type="password" id="password" placeholder="At least 6 characters" required minlength="6">
+            <button type="submit" class="btn" id="submitBtn">Create account</button>
+        </form>
+        <div class="links">
+            <a href="/login">Already have an account? Log in</a><br>
+            <a href="/" style="color:var(--muted)">Back to home</a>
+        </div>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorEl = document.getElementById('error');
+            const btn = document.getElementById('submitBtn');
+            errorEl.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value,
+                        phone: document.getElementById('phone').value,
+                        ref: new URLSearchParams(window.location.search).get('ref') || '',
+                    }),
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail || 'Registration failed');
+
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Xin quyền vị trí
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        async (pos) => {
+                            try {
+                                // Reverse geocode
+                                let locName = '';
+                                try {
+                                    const geo = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+                                    const geoData = await geo.json();
+                                    locName = geoData.display_name || '';
+                                } catch(_) {}
+
+                                await fetch('/api/auth/update-location', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.token },
+                                    body: JSON.stringify({
+                                        latitude: pos.coords.latitude,
+                                        longitude: pos.coords.longitude,
+                                        location_name: locName.substring(0, 200),
+                                    }),
+                                });
+                            } catch(_) {}
+                            window.location.href = '/chat';
+                        },
+                        () => { window.location.href = '/chat'; },
+                        { timeout: 10000 }
+                    );
+                } else {
+                    window.location.href = '/chat';
+                }
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.style.display = 'block';
+            }
+            btn.disabled = false;
+            btn.textContent = 'Create account';
+        });
+    </script>
+</body>
+</html>

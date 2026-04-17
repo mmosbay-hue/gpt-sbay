@@ -1,0 +1,522 @@
+/* App — SbayAI 2025 clone — all buttons functional */
+document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const micBtn = document.getElementById('micBtn');
+    const attachBtn = document.getElementById('attachBtn');
+    const searchBtn = document.getElementById('searchBtn');
+    const collapseBtn = document.getElementById('sidebarCollapseBtn');
+    const modelSelector = document.getElementById('modelSelector');
+    const shareBtn = document.getElementById('shareBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const userProfileBtn = document.getElementById('userProfileBtn');
+
+    // Load conversations + user info + notification sound
+    Sidebar.load();
+    loadUserInfo();
+    Chat.loadNotificationSound();
+
+    // ===== Send =====
+    function send() {
+        const msg = input.value.trim();
+        if (!msg || Chat.isStreaming) return;
+        input.value = '';
+        input.style.height = 'auto';
+        updateButtons(); // swap back to voice btn
+        Chat.send(msg);
+    }
+    const voiceBtn = document.getElementById('voiceBtn');
+
+    // Send button click
+    sendBtn.addEventListener('click', send);
+
+    // Voice button click — nói chuyện 2 chiều
+    voiceBtn.addEventListener('click', () => {
+        if (!recognition) { alert('Trình duyệt không hỗ trợ. Dùng Chrome/Edge.'); return; }
+        if (Chat.voiceMode) {
+            // Đang voice mode → tắt
+            Chat.stopVoiceMode();
+            if (isListening) try { recognition.stop(); } catch(_) {}
+            voiceBtn.classList.remove('active');
+            voiceBtn.title = 'Nói chuyện 2 chiều';
+        } else {
+            // Bật voice mode 2 chiều
+            Chat.startVoiceMode();
+            try { recognition.start(); } catch(e) {
+                try { recognition.stop(); } catch(_) {}
+                setTimeout(() => { try { recognition.start(); } catch(_) {} }, 300);
+            }
+            voiceBtn.classList.add('active');
+            voiceBtn.title = 'Đang nói chuyện... Nhấn để dừng';
+        }
+    });
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+
+    // Swap buttons based on input text
+    function updateButtons() {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+        const hasText = input.value.trim().length > 0;
+        micBtn.style.display = hasText ? 'none' : 'flex';
+        voiceBtn.style.display = hasText ? 'none' : 'flex';
+        sendBtn.style.display = hasText ? 'flex' : 'none';
+    }
+    input.addEventListener('input', updateButtons);
+    updateButtons();
+
+    // ===== Quick Mode Buttons =====
+    const MODE_PROMPTS = {
+        ask: {
+            system: `Bạn là trợ lý AI cực kỳ thông minh. NGUYÊN TẮC BẮT BUỘC:
+
+1. KHÔNG BAO GIỜ trả lời ngay. PHẢI hỏi ngược 2-3 câu hỏi cụ thể để hiểu chính xác vấn đề.
+2. Câu hỏi phải SÁT với nội dung user nói, KHÔNG hỏi chung chung.
+3. Sau mỗi lần trả lời, LUÔN đưa ra ĐÚNG 3 gợi ý trả lời nhanh.
+
+QUY TẮC GỢI Ý (SIÊU QUAN TRỌNG):
+- Gợi ý PHẢI là câu trả lời NGẮN, CỤ THỂ, user bấm là xong — KHÔNG giải thích.
+- Gợi ý PHẢI trả lời ĐÚNG câu hỏi cuối cùng bạn vừa hỏi.
+- Mỗi gợi ý tối đa 10 từ.
+
+VÍ DỤ ĐÚNG:
+- Hỏi: "Bạn bán gì?" → 1. Nước ép trái cây  2. Quần áo thời trang  3. Khóa học online
+- Hỏi: "Ngân sách?" → 1. Dưới 5 triệu  2. 5-20 triệu  3. Trên 50 triệu
+- Hỏi: "Khách hàng là ai?" → 1. Sinh viên 18-25 tuổi  2. Nhân viên văn phòng  3. Chủ doanh nghiệp nhỏ
+- Hỏi: "Kênh marketing?" → 1. Facebook Ads  2. TikTok  3. Google SEO
+
+VÍ DỤ SAI (CẤM):
+- "Tìm hiểu thêm về marketing" ← quá chung
+- "Phân tích chi tiết chiến lược" ← không trả lời câu hỏi
+- "Đo lường hiệu quả" ← chủ đề mới, không phải câu trả lời
+
+ĐỊNH DẠNG:
+1. [max 10 từ, trả lời trực tiếp]
+2. [max 10 từ, trả lời trực tiếp]
+3. [max 10 từ, trả lời trực tiếp]`,
+            placeholder: 'Hỏi gì đó, AI sẽ hỏi lại để hiểu rõ...',
+        },
+        plan: {
+            system: 'Bạn là chuyên gia lập kế hoạch. Với mọi yêu cầu, hãy tạo kế hoạch chi tiết với: Mục tiêu, Các bước thực hiện (đánh số), Timeline, Nguồn lực cần thiết, Rủi ro và cách xử lý. Dùng markdown formatting.',
+            placeholder: 'Nhập mục tiêu cần lập kế hoạch...',
+        },
+        idea: {
+            system: 'Bạn là chuyên gia brainstorm ý tưởng sáng tạo. Với mỗi chủ đề, hãy đưa ra ít nhất 10 ý tưởng, xếp hạng theo tính khả thi và độ sáng tạo. Mỗi ý tưởng có: tên ngắn, mô tả 1-2 câu, điểm khả thi (1-10).',
+            placeholder: 'Nhập chủ đề cần brainstorm...',
+        },
+        fast: {
+            system: 'Trả lời CỰC NGẮN, tối đa 3 câu. Đi thẳng vào vấn đề. Không giải thích dài dòng. Nếu là danh sách thì đánh số 1,2,3,4,5,6. Không mở đầu, không kết luận.',
+            placeholder: 'Hỏi nhanh, AI trả lời gọn...',
+        },
+        content: {
+            system: 'Bạn là chuyên gia content marketing 10 năm kinh nghiệm. Viết content theo cấu trúc: Hook (câu mở đầu gây chú ý), Body (nội dung giá trị), CTA (kêu gọi hành động). Tối ưu cho engagement. Dùng emoji phù hợp. Viết bằng tiếng Việt tự nhiên, không máy móc.',
+            placeholder: 'Nhập chủ đề content: Facebook, TikTok, Email...',
+        },
+        prompt: {
+            system: 'Bạn là chuyên gia prompt engineering. Giúp user soạn câu lệnh (prompt) chất lượng cao cho AI. Mỗi prompt phải có: Role (vai trò), Context (bối cảnh), Task (nhiệm vụ), Format (định dạng output), Constraints (ràng buộc). Output prompt trong code block để dễ copy.',
+            placeholder: 'Mô tả bạn muốn AI làm gì...',
+        },
+        ceo: {
+            system: `Bạn là CEO cố vấn chiến lược 20 năm kinh nghiệm điều hành doanh nghiệp. Trả lời theo góc nhìn CEO:
+- Luôn nhìn bức tranh toàn cảnh (big picture)
+- Phân tích: Cơ hội, Rủi ro, ROI, Cạnh tranh
+- Đưa ra quyết định dựa trên dữ liệu, không cảm tính
+- Ưu tiên: Doanh thu → Tăng trưởng → Chi phí → Nhân sự
+- Nói ngắn gọn, quyết đoán, không vòng vo
+- Kết thúc bằng 1 quyết định cụ thể hoặc câu hỏi then chốt`,
+            placeholder: 'Hỏi chiến lược kinh doanh, quản trị, tăng trưởng...',
+        },
+        teacher: {
+            system: `Bạn là giáo viên giỏi nhất, kiên nhẫn vô hạn. Nguyên tắc giảng dạy:
+- Giải thích từ CƠ BẢN → NÂNG CAO, đơn giản → phức tạp
+- Dùng ví dụ thực tế, hình ảnh, so sánh dễ hiểu
+- Chia thành từng bước nhỏ, đánh số rõ ràng
+- Sau mỗi phần hỏi "Bạn đã hiểu chưa?"
+- Nếu user chưa hiểu → giải thích lại bằng cách khác
+- Khen ngợi khi user trả lời đúng
+- Cuối bài có BÀI TẬP THỰC HÀNH + ĐÁP ÁN`,
+            placeholder: 'Hỏi bất kỳ chủ đề nào cần học...',
+        },
+        student: {
+            system: `Bạn là trợ lý học tập thông minh cho sinh viên/học sinh. Hỗ trợ:
+- Giải bài tập: trình bày TỪNG BƯỚC, có lời giải chi tiết
+- Tóm tắt bài học: bullet points ngắn gọn, dễ nhớ
+- Ôn thi: tạo câu hỏi trắc nghiệm + tự luận + đáp án
+- Viết luận/báo cáo: dàn ý → mở bài → thân bài → kết luận
+- Dịch thuật: chính xác + giải thích ngữ pháp
+- Mindmap: tổ chức kiến thức dạng sơ đồ
+Luôn khuyến khích tự suy nghĩ trước khi đưa đáp án.`,
+            placeholder: 'Nhập bài tập, câu hỏi ôn thi, chủ đề cần học...',
+        },
+    };
+
+    let activeMode = null;
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const mode = btn.dataset.mode;
+            if (activeMode === mode) {
+                // Tắt mode
+                activeMode = null;
+                btn.classList.remove('active');
+                Chat.activeSystemPrompt = null;
+                input.placeholder = 'Hỏi bất kỳ điều gì';
+            } else {
+                // Bật mode mới
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                activeMode = mode;
+                btn.classList.add('active');
+                const config = MODE_PROMPTS[mode];
+                Chat.activeSystemPrompt = config.system;
+                input.placeholder = config.placeholder;
+            }
+            input.focus();
+        });
+    });
+
+    // ===== Temporary Mode =====
+    const tempBtn = document.getElementById('tempModeBtn');
+    if (tempBtn) {
+        tempBtn.addEventListener('click', () => {
+            Chat.temporaryMode = !Chat.temporaryMode;
+            tempBtn.classList.toggle('active', Chat.temporaryMode);
+            if (Chat.temporaryMode) {
+                input.placeholder = 'Chat tạm — không lưu, mới hoàn toàn...';
+            } else {
+                input.placeholder = 'Hỏi bất kỳ điều gì';
+            }
+        });
+    }
+
+    // ===== New Chat =====
+    newChatBtn.addEventListener('click', () => {
+        Sidebar.newChat();
+        input.focus();
+    });
+
+    // ===== Search (inline, no prompt()) =====
+    let searchOpen = false;
+    const searchBox = document.createElement('div');
+    searchBox.className = 'search-box';
+    searchBox.style.cssText = 'display:none;padding:4px 8px';
+    searchBox.innerHTML = '<input id="searchInput" type="text" placeholder="Tìm kiếm..." style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;outline:none;background:var(--bg);color:var(--text);font-family:inherit">';
+    // Insert after sidebar-nav
+    const sidebarNav = document.querySelector('.sidebar-nav');
+    if (sidebarNav) sidebarNav.after(searchBox);
+
+    searchBtn.addEventListener('click', () => {
+        searchOpen = !searchOpen;
+        searchBox.style.display = searchOpen ? 'block' : 'none';
+        if (searchOpen) document.getElementById('searchInput').focus();
+        else { document.getElementById('searchInput').value = ''; Sidebar.load(); }
+    });
+
+    document.addEventListener('input', async (e) => {
+        if (e.target.id !== 'searchInput') return;
+        const q = e.target.value.trim();
+        if (!q) { Sidebar.load(); return; }
+        try {
+            const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+            const results = await res.json();
+            Sidebar.renderList(results);
+        } catch(err) { console.error('Search error:', err); }
+    });
+
+    // ===== Sidebar Collapse — toggle class de CSS thu nho thanh icon bar =====
+    collapseBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('collapsed');
+        // Luu trang thai vao localStorage
+        try { localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed') ? '1' : '0'); } catch(_) {}
+    });
+    // Khoi phuc trang thai
+    try { if (localStorage.getItem('sidebarCollapsed') === '1') sidebar.classList.add('collapsed'); } catch(_) {}
+
+    // ===== Attach File =====
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*,.pdf,.txt,.csv,.json,.py,.js,.html,.css';
+    fileInput.style.display = 'none';
+    document.body.appendChild(fileInput);
+
+    attachBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async () => {
+        if (fileInput.files.length === 0) return;
+        const file = fileInput.files[0];
+
+        // Hien thi loading vao input
+        const oldVal = input.value;
+        const placeholder = `[⏳ Đang upload "${file.name}"...]`;
+        input.value = oldVal + (oldVal ? '\n' : '') + placeholder;
+
+        try {
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await fetch('/api/upload', { method: 'POST', body: fd });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.detail || `HTTP ${res.status}`);
+            }
+            const result = await res.json();
+
+            // Replace loading placeholder
+            input.value = input.value.replace(placeholder, '');
+            const sep = input.value && !input.value.endsWith('\n') ? '\n' : '';
+
+            if (result.is_image) {
+                // Anh: chen markdown image
+                input.value += `${sep}![${result.name}](${result.url})\n`;
+            } else if (result.is_text && result.text_content) {
+                // Text file: chen noi dung de AI doc
+                input.value += `${sep}\`\`\`${result.name}\n${result.text_content}\n\`\`\`\n`;
+            } else {
+                // File khac: chi link
+                input.value += `${sep}[📎 ${result.name}](${result.url})\n`;
+            }
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+            sendBtn.disabled = !input.value.trim();
+            updateButtons();
+            input.focus();
+        } catch (err) {
+            input.value = input.value.replace(placeholder, `[❌ Upload lỗi: ${err.message}]`);
+            console.error('Upload failed:', err);
+        } finally {
+            fileInput.value = '';
+        }
+    });
+
+    // ===== Model Selector — thuc su doi model gui xuong backend =====
+    const MODEL_MAP = {
+        'SbayAI': 'deepseek-chat',
+        'SbayAI': 'deepseek-chat',
+        'SbayAI Reasoner': 'deepseek-reasoner',
+    };
+    const MODEL_LABELS = Object.keys(MODEL_MAP);
+    modelSelector.addEventListener('click', () => {
+        const current = modelSelector.childNodes[0].textContent.trim();
+        const idx = MODEL_LABELS.indexOf(current);
+        const next = MODEL_LABELS[(idx + 1) % MODEL_LABELS.length];
+        modelSelector.childNodes[0].textContent = next + ' ';
+        document.title = next;
+        // Truyen model thuc xuong Chat module
+        if (window.Chat) Chat.currentModel = MODEL_MAP[next];
+        // Khi doi model thi reset preset
+        if (window.Chat) { Chat.activePresetName = null; Chat.activeSystemPrompt = null; }
+        try { localStorage.setItem('selectedModel', next); } catch(_) {}
+    });
+    // Khoi phuc lua chon model
+    try {
+        const saved = localStorage.getItem('selectedModel');
+        if (saved && MODEL_MAP[saved]) {
+            modelSelector.childNodes[0].textContent = saved + ' ';
+            if (window.Chat) Chat.currentModel = MODEL_MAP[saved];
+        }
+    } catch(_) {}
+
+    // ===== Share =====
+    shareBtn.addEventListener('click', () => {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            shareBtn.title = 'Đã sao chép link!';
+            setTimeout(() => shareBtn.title = 'Chia sẻ', 2000);
+        }).catch(() => {
+            prompt('Sao chép link:', url);
+        });
+    });
+
+    // ===== Settings = Dark Mode Toggle =====
+    function applyTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        // Update highlight.js theme for code blocks
+        const hlLink = document.querySelector('link[href*="highlight"]');
+        if (hlLink) {
+            hlLink.href = theme === 'dark'
+                ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+                : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+        }
+    }
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    applyTheme(savedTheme);
+
+    settingsBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'light';
+        applyTheme(current === 'light' ? 'dark' : 'light');
+    });
+
+    // ===== User Profile =====
+    userProfileBtn.addEventListener('click', () => {
+        window.location.href = '/dashboard';
+    });
+
+    // ===== Thêm button =====
+    const moreBtn = document.querySelectorAll('.sidebar-nav .sidebar-btn')[2]; // 3rd = Thêm
+    if (moreBtn) moreBtn.addEventListener('click', () => { window.location.href = '/guide'; });
+
+    // ===== Thêm button =====
+    const moreNavBtn = document.querySelectorAll('.sidebar-nav .sidebar-btn')[3]; // 4th = Thêm
+    if (moreNavBtn) moreNavBtn.addEventListener('click', () => { window.location.href = '/dashboard'; });
+
+
+    // GPT sidebar list duoc render boi MyGpts module (mygpts.js)
+    // Khi user login: sync localStorage <-> backend /api/gpts/ (TODO)
+
+    // ===== Mobile Sidebar =====
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        toggleOverlay();
+    });
+
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+    });
+
+    function toggleOverlay() {
+        overlay.classList.toggle('active', sidebar.classList.contains('open'));
+    }
+
+    // ===== Voice Input =====
+    let isListening = false;
+    let recognition = null;
+
+    let silenceTimer = null;
+    const SILENCE_MS = 1500; // Auto-stop sau 1.5s im lang trong voice mode
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SR();
+        recognition.lang = 'vi-VN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        let finalTranscript = '';
+
+        recognition.onstart = () => {
+            isListening = true;
+            micBtn.style.background = '#ef4444';
+            micBtn.style.color = '#fff';
+            micBtn.style.borderRadius = '50%';
+            micBtn.title = 'Đang nghe... Nhấn để dừng';
+            // Cancel AI đang nói khi user bắt đầu nói (cấm chồng chéo)
+            Chat.stopSpeaking();
+            // Voice mode: bat dau bang chuoi rong
+            finalTranscript = Chat.voiceMode ? '' : input.value;
+            if (Chat.voiceMode) input.value = '';
+        };
+
+        recognition.onresult = (e) => {
+            let interim = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                const t = e.results[i][0].transcript;
+                if (e.results[i].isFinal) finalTranscript += (finalTranscript ? ' ' : '') + t;
+                else interim += t;
+            }
+            input.value = finalTranscript + (interim ? ' ' + interim : '');
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+            sendBtn.disabled = !input.value.trim();
+
+            // VOICE MODE: tu dong stop sau khi im lang 1.5s -> trigger onend -> send
+            if (Chat.voiceMode) {
+                clearTimeout(silenceTimer);
+                silenceTimer = setTimeout(() => {
+                    if (isListening) {
+                        try { recognition.stop(); } catch(_) {}
+                    }
+                }, SILENCE_MS);
+            }
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            clearTimeout(silenceTimer);
+            micBtn.style.background = '';
+            micBtn.style.color = '';
+            micBtn.title = 'Giọng nói';
+
+            // Voice mode: auto-send when mic stops (chi khi co text)
+            if (Chat.voiceMode && input.value.trim() && !Chat.isStreaming) {
+                send();
+            }
+        };
+
+        recognition.onerror = (e) => {
+            isListening = false;
+            clearTimeout(silenceTimer);
+            micBtn.style.background = '';
+            micBtn.style.color = '';
+            if (e.error === 'not-allowed') {
+                alert('Vui lòng cho phép microphone trong trình duyệt.');
+                Chat.voiceMode = false;
+                voiceBtn.classList.remove('active');
+            } else if (e.error === 'no-speech' && Chat.voiceMode) {
+                // Im lang qua lau trong voice mode - restart de cho tiep
+                setTimeout(() => {
+                    if (Chat.voiceMode && !Chat.isStreaming && !isListening) {
+                        try { recognition.start(); } catch(_) {}
+                    }
+                }, 300);
+            }
+        };
+    }
+
+    micBtn.addEventListener('click', () => {
+        if (!recognition) { alert('Trình duyệt không hỗ trợ. Dùng Chrome/Edge.'); return; }
+        if (isListening) {
+            try { recognition.stop(); } catch(_) {}
+        } else {
+            try { recognition.start(); } catch(e) {
+                try { recognition.stop(); } catch(_) {}
+                setTimeout(() => { try { recognition.start(); } catch(_) {} }, 200);
+            }
+        }
+    });
+
+    // ===== Load User Info =====
+    function loadUserInfo() {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.name) {
+            const nameEl = document.querySelector('.user-name');
+            const avatarEl = document.querySelector('.user-avatar');
+            const planEl = document.querySelector('.user-plan');
+            if (nameEl) nameEl.textContent = user.name;
+            if (avatarEl) avatarEl.textContent = user.name.substring(0, 2).toUpperCase();
+            if (planEl) planEl.textContent = user.plan === 'free' ? 'Tài khoản cá nhân' : user.plan.toUpperCase();
+        }
+    }
+
+    // ===== Keyboard Shortcuts =====
+    document.addEventListener('keydown', (e) => {
+        // Ctrl+N = New chat
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+            e.preventDefault();
+            Sidebar.newChat();
+            input.focus();
+        }
+        // Ctrl+/ = Search
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+            e.preventDefault();
+            searchBtn.click();
+        }
+        // Ctrl+D = Dark mode toggle
+        if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+            e.preventDefault();
+            settingsBtn.click();
+        }
+        // Escape = close search
+        if (e.key === 'Escape') {
+            if (searchOpen) { searchBtn.click(); input.focus(); }
+        }
+    });
+
+    input.focus();
+});

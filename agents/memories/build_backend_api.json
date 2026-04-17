@@ -1,0 +1,17 @@
+{
+  "short_term": [
+    {
+      "key": "task_assigned",
+      "content": "Add LocalStorage sync endpoint — export/import conversations for persistence",
+      "timestamp": "2026-04-16T20:56:22.049659"
+    }
+  ],
+  "long_term": [],
+  "tasks_done": [
+    {
+      "task": "Add LocalStorage sync endpoint — export/import conversations for persistence",
+      "timestamp": "2026-04-16T21:00:02.140829"
+    }
+  ],
+  "insights": []
+}

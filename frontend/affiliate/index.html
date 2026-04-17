@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate — Kiếm tiền cùng SbayAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#fff;--text:#1a1a1a;--muted:#888;--red:#dc2626;--red-light:#fef2f2;--red-dark:#b91c1c;--red-border:#fca5a5;--border:#eee;--shadow:0 4px 12px rgba(0,0,0,.06)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#fafafa;color:var(--text);line-height:1.6}
+        .container{max-width:960px;margin:0 auto;padding:32px 24px}
+
+        /* Nav */
+        nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;background:#fff;border-bottom:1px solid var(--border)}
+        nav .logo{font-size:18px;font-weight:800;color:var(--red)}
+        nav a{color:var(--muted);font-size:14px;font-weight:500;text-decoration:none;margin-left:16px}
+        nav a:hover{color:var(--red)}
+
+        h1{font-size:28px;font-weight:800;margin-bottom:8px}
+        .subtitle{color:var(--muted);font-size:15px;margin-bottom:32px}
+
+        /* Stats grid */
+        .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+        .stat{background:#fff;border:1px solid var(--border);border-radius:16px;padding:24px;text-align:center;box-shadow:var(--shadow)}
+        .stat-icon{font-size:28px;margin-bottom:8px}
+        .stat-value{font-size:28px;font-weight:800;color:var(--red)}
+        .stat-label{font-size:13px;color:var(--muted);font-weight:500;margin-top:4px}
+
+        /* Referral link */
+        .ref-card{background:#fff;border:2px solid var(--red-border);border-radius:16px;padding:28px;margin-bottom:32px;box-shadow:var(--shadow)}
+        .ref-card h2{font-size:18px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+        .ref-link-row{display:flex;gap:8px;margin-bottom:16px}
+        .ref-link-input{flex:1;padding:14px 16px;border:2px solid var(--red-border);border-radius:12px;font-size:15px;font-weight:600;color:var(--red-dark);background:var(--red-light);outline:none;font-family:inherit}
+        .btn{padding:14px 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+        .btn-red{background:var(--red);color:#fff}
+        .btn-red:hover{background:var(--red-dark)}
+        .btn-outline{background:#fff;color:var(--red);border:2px solid var(--red)}
+        .btn-outline:hover{background:var(--red-light)}
+        .share-row{display:flex;gap:8px;flex-wrap:wrap}
+
+        /* Tree */
+        .tree-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:32px;box-shadow:var(--shadow)}
+        .tree-card h2{font-size:18px;font-weight:700;margin-bottom:16px}
+        .tree-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+        .tree-item:last-child{border:none}
+        .tree-avatar{width:32px;height:32px;border-radius:10px;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+        .tree-avatar.t2{background:var(--red-light);color:var(--red);border:1px solid var(--red-border)}
+        .tree-name{font-weight:600;font-size:14px}
+        .tree-level{font-size:12px;padding:3px 10px;border-radius:20px;font-weight:600}
+        .tree-level.l1{background:var(--red);color:#fff}
+        .tree-level.l2{background:var(--red-light);color:var(--red)}
+        .tree-indent{margin-left:42px}
+
+        /* Commission table */
+        .comm-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:28px;box-shadow:var(--shadow)}
+        .comm-card h2{font-size:18px;font-weight:700;margin-bottom:16px}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:12px 16px;text-align:left;font-size:14px;border-bottom:1px solid var(--border)}
+        th{font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+        .amount{font-weight:700;color:var(--red)}
+        .badge{padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+        .badge-l1{background:var(--red);color:#fff}
+        .badge-l2{background:var(--red-light);color:var(--red)}
+        .badge-pending{background:#fef3c7;color:#92400e}
+        .badge-paid{background:#d1fae5;color:#065f46}
+
+        .empty{color:var(--muted);text-align:center;padding:40px;font-size:14px}
+
+        @media(max-width:768px){
+            .stats{grid-template-columns:repeat(2,1fr)}
+            .ref-link-row{flex-direction:column}
+            .share-row{flex-direction:column}
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <span class="logo">SbayAI Affiliate</span>
+        <div>
+            <a href="/chat">Chat</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Kiếm tiền cùng SbayAI</h1>
+        <p class="subtitle">Chia sẻ link → bạn bè đăng ký → bạn nhận hoa hồng tự động. Tầng 1: 20% | Tầng 2: 10%</p>
+
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat"><div class="stat-icon">💰</div><div class="stat-value" id="totalEarned">0₫</div><div class="stat-label">Tổng thu nhập</div></div>
+            <div class="stat"><div class="stat-icon">⚡</div><div class="stat-value" id="todayEarned">0₫</div><div class="stat-label">Hôm nay</div></div>
+            <div class="stat"><div class="stat-icon">👥</div><div class="stat-value" id="tier1Count">0</div><div class="stat-label">Tầng 1 (20%)</div></div>
+            <div class="stat"><div class="stat-icon">🌐</div><div class="stat-value" id="tier2Count">0</div><div class="stat-label">Tầng 2 (10%)</div></div>
+        </div>
+
+        <!-- Referral Link -->
+        <div class="ref-card">
+            <h2>🔗 Link giới thiệu của bạn</h2>
+            <div class="ref-link-row">
+                <input class="ref-link-input" id="refLink" readonly>
+                <button class="btn btn-red" onclick="copyLink()">📋 Copy</button>
+            </div>
+            <div class="share-row">
+                <button class="btn btn-outline" onclick="shareZalo()">Chia sẻ Zalo</button>
+                <button class="btn btn-outline" onclick="shareFB()">Chia sẻ Facebook</button>
+                <button class="btn btn-outline" onclick="shareTelegram()">Chia sẻ Telegram</button>
+            </div>
+        </div>
+
+        <!-- Tree -->
+        <div class="tree-card">
+            <h2>🌳 Sơ đồ hệ thống</h2>
+            <div id="treeView"><div class="empty">Chưa có người giới thiệu</div></div>
+        </div>
+
+        <!-- Commissions -->
+        <div class="comm-card">
+            <h2>📊 Bảng hoa hồng</h2>
+            <table>
+                <thead><tr><th>Ngày</th><th>Người</th><th>Level</th><th>Số tiền</th><th>Trạng thái</th></tr></thead>
+                <tbody id="commTable"><tr><td colspan="5" class="empty">Chưa có hoa hồng</td></tr></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+        const H = {'Authorization':'Bearer '+token};
+        const domain = window.location.origin;
+
+        async function loadDashboard() {
+            try {
+                const res = await fetch('/api/affiliate/dashboard', {headers:H});
+                const d = await res.json();
+                document.getElementById('totalEarned').textContent = '' + d.total_earned;
+                document.getElementById('todayEarned').textContent = '' + d.today_earned;
+                document.getElementById('tier1Count').textContent = d.tier1_count;
+                document.getElementById('tier2Count').textContent = d.tier2_count;
+                document.getElementById('refLink').value = domain + d.referral_link;
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadTree() {
+            try {
+                const res = await fetch('/api/affiliate/tree', {headers:H});
+                const d = await res.json();
+                const view = document.getElementById('treeView');
+                if (!d.tree.length) return;
+                view.innerHTML = d.tree.map(u => `
+                    <div class="tree-item">
+                        <div class="tree-avatar">T1</div>
+                        <div class="tree-name">${u.name}</div>
+                        <span class="tree-level l1">Tầng 1 · 20%</span>
+                    </div>
+                    ${u.children.map(c => `
+                        <div class="tree-item tree-indent">
+                            <div class="tree-avatar t2">T2</div>
+                            <div class="tree-name">${c.name}</div>
+                            <span class="tree-level l2">Tầng 2 · 10%</span>
+                        </div>
+                    `).join('')}
+                `).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadCommissions() {
+            try {
+                const res = await fetch('/api/affiliate/commissions', {headers:H});
+                const d = await res.json();
+                const tbody = document.getElementById('commTable');
+                if (!d.commissions.length) return;
+                tbody.innerHTML = d.commissions.map(c => `<tr>
+                    <td>${new Date(c.created_at).toLocaleDateString('vi')}</td>
+                    <td>${c.source_name}</td>
+                    <td><span class="badge badge-l${c.level}">Level ${c.level}</span></td>
+                    <td class="amount">${c.amount.toLocaleString()}₫</td>
+                    <td><span class="badge badge-${c.status}">${c.status}</span></td>
+                </tr>`).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        function copyLink() {
+            const input = document.getElementById('refLink');
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = event.target;
+                btn.textContent = '✅ Đã copy!';
+                setTimeout(() => btn.textContent = '📋 Copy', 2000);
+            });
+        }
+
+        function shareZalo() { window.open('https://zalo.me/share?url=' + encodeURIComponent(document.getElementById('refLink').value)); }
+        function shareFB() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(document.getElementById('refLink').value)); }
+        function shareTelegram() { window.open('https://t.me/share/url?url=' + encodeURIComponent(document.getElementById('refLink').value) + '&text=Dùng thử SbayAI miễn phí!'); }
+
+        loadDashboard();
+        loadTree();
+        loadCommissions();
+    </script>
+</body>
+</html>

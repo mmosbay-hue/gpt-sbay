@@ -1,0 +1,27 @@
+{
+  "short_term": [
+    {
+      "key": "project_brief",
+      "content": "Analyzed GPT Web project",
+      "timestamp": "2026-04-16T20:50:32.769466"
+    },
+    {
+      "key": "meeting_opinion",
+      "content": "**Good:**  \nClear MVP scope, well-defined stack, and modular frontend structure. SSE for streaming is appropriate. Dark theme and markdown rendering are correctly prioritized.\n\n**Missing/Wrong:**  \n1.",
+      "timestamp": "2026-04-16T20:50:32.770487"
+    },
+    {
+      "key": "project_brief",
+      "content": "Analyzed GPT Web project",
+      "timestamp": "2026-04-16T20:54:12.401493"
+    },
+    {
+      "key": "meeting_opinion",
+      "content": "**Good:**  \nClear MVP scope, modular frontend structure (sidebar.js, markdown.js), and explicit tech stack. SSE streaming with FastAPI is appropriate for real-time responses. Dark theme and mobile res",
+      "timestamp": "2026-04-16T20:54:12.402914"
+    }
+  ],
+  "long_term": [],
+  "tasks_done": [],
+  "insights": []
+}

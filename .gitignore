@@ -1,0 +1,58 @@
+# Env & secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build & dist
+dist/
+build/
+*.tgz
+
+# Logs & runtime data
+logs/
+*.log
+data/
+!data/.gitkeep
+
+# Puppeteer / browser profiles
+puppeteer/.cache/
+puppeteer/user_data/
+.cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Claude local
+.claude/settings.local.json
+
+# OS
+desktop.ini

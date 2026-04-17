@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SbayAI — Trợ lý AI thông minh</title>
+    <meta name="description" content="Trợ lý AI giống SbayAI. Streaming, voice 2 chiều, custom GPT. Miễn phí.">
+    <meta property="og:title" content="SbayAI — Trợ lý AI thông minh">
+    <meta property="og:description" content="Trải nghiệm AI chat mạnh mẽ. Bắt đầu miễn phí.">
+    <meta property="og:type" content="website">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#fff;--bg2:#fafafa;--text:#1a1a1a;--muted:#888;--red:#dc2626;--red-light:#fef2f2;--red-dark:#b91c1c;--red-border:#fca5a5;--border:#eee}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+        a{color:var(--red);text-decoration:none}
+
+        /* Nav */
+        nav{display:flex;justify-content:space-between;align-items:center;padding:16px 48px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:50}
+        .logo{font-size:20px;font-weight:800;color:var(--red)}
+        .nav-links{display:flex;gap:20px;align-items:center}
+        .nav-links a{color:var(--muted);font-size:14px;font-weight:500;transition:color .15s}
+        .nav-links a:hover{color:var(--red)}
+        .btn{padding:10px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;border:none;display:inline-block;text-align:center}
+        .btn-primary{background:var(--red);color:#fff}
+        .btn-primary:hover{background:var(--red-dark)}
+        .btn-outline{background:transparent;color:var(--text);border:2px solid var(--red)}
+        .btn-outline:hover{background:var(--red-light);color:var(--red)}
+        .lang-toggle{padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:var(--text)}
+        .lang-toggle:hover{border-color:var(--red);color:var(--red)}
+
+        /* Hero */
+        .hero{text-align:center;padding:100px 24px 60px;max-width:800px;margin:0 auto}
+        .hero h1{font-size:52px;font-weight:800;line-height:1.1;margin-bottom:20px;letter-spacing:-.03em}
+        .hero h1 span{color:var(--red)}
+        .hero p{font-size:18px;color:var(--muted);margin-bottom:36px;max-width:600px;margin-left:auto;margin-right:auto}
+        .hero-cta{display:flex;gap:12px;justify-content:center}
+        .hero-cta .btn{padding:16px 36px;font-size:16px;border-radius:12px}
+
+        /* Features */
+        .features{padding:80px 48px;max-width:1100px;margin:0 auto}
+        .features h2{text-align:center;font-size:32px;font-weight:800;margin-bottom:12px}
+        .features .sub{text-align:center;color:var(--muted);margin-bottom:48px;font-size:16px}
+        .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+        .feature-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .2s}
+        .feature-card:hover{border-color:var(--red-border);box-shadow:0 8px 24px rgba(220,38,38,.08);transform:translateY(-2px)}
+        .feature-card .icon{font-size:32px;margin-bottom:12px}
+        .feature-card h3{font-size:16px;font-weight:700;margin-bottom:6px}
+        .feature-card p{color:var(--muted);font-size:14px;line-height:1.6}
+
+        /* Pricing */
+        .pricing{padding:80px 48px;background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+        .pricing h2{text-align:center;font-size:32px;font-weight:800;margin-bottom:48px}
+        .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1000px;margin:0 auto}
+        .plan-card{background:#fff;border:2px solid var(--border);border-radius:16px;padding:32px;text-align:center;position:relative;transition:all .2s}
+        .plan-card:hover{border-color:var(--red-border)}
+        .plan-card.popular{border-color:var(--red);box-shadow:0 8px 24px rgba(220,38,38,.1)}
+        .plan-card.popular::before{content:attr(data-badge);position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:var(--red);color:#fff;font-size:12px;font-weight:700;padding:4px 16px;border-radius:20px}
+        .plan-name{font-size:18px;font-weight:700}
+        .plan-price{font-size:44px;font-weight:800;margin:16px 0;color:var(--red)}
+        .plan-price span{font-size:16px;color:var(--muted);font-weight:400}
+        .plan-features{list-style:none;text-align:left;margin:24px 0}
+        .plan-features li{padding:8px 0;color:var(--muted);font-size:14px;border-bottom:1px solid var(--border)}
+        .plan-features li::before{content:"✓ ";color:var(--red);font-weight:700}
+
+        /* Email CTA */
+        .email-cta{padding:60px 24px;text-align:center;background:#fff}
+        .email-cta h2{font-size:28px;font-weight:800;margin-bottom:12px}
+        .email-cta p{color:var(--muted);margin-bottom:24px}
+        .email-form{display:flex;gap:10px;max-width:480px;margin:0 auto}
+        .email-form input{flex:1;padding:14px 16px;border-radius:10px;border:2px solid var(--red-border);font-size:15px;outline:none;font-family:inherit}
+        .email-form input:focus{border-color:var(--red)}
+        .email-form button{padding:14px 28px;background:var(--red);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+        .email-form button:hover{background:var(--red-dark)}
+
+        /* Footer */
+        footer{text-align:center;padding:32px;color:var(--muted);font-size:13px;border-top:1px solid var(--border)}
+
+        @media(max-width:768px){
+            nav{padding:12px 16px}
+            .hero h1{font-size:32px}
+            .hero p{font-size:16px}
+            .feature-grid,.pricing-grid{grid-template-columns:1fr}
+            .hero-cta{flex-direction:column;align-items:center}
+            .email-form{flex-direction:column}
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo" style="display:flex;align-items:center;text-decoration:none"><img src="/static/logo.svg" alt="Sbay" style="height:32px;width:auto"></a>
+        <div class="nav-links">
+            <a href="#features" data-vi="Tính năng" data-en="Features">Tính năng</a>
+            <a href="#pricing" data-vi="Bảng giá" data-en="Pricing">Bảng giá</a>
+            <button class="lang-toggle" id="langToggle" onclick="toggleLang()">EN 🇬🇧</button>
+            <a href="/login" class="btn btn-outline" data-vi="Đăng nhập" data-en="Log in">Đăng nhập</a>
+            <a href="/register" class="btn btn-primary" data-vi="Dùng miễn phí" data-en="Start free">Dùng miễn phí</a>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1 data-vi="Trợ lý AI <span>thông minh</span> cho mọi người" data-en="AI Chat That <span>Works</span> For You">Trợ lý AI <span>thông minh</span> cho mọi người</h1>
+        <p data-vi="Chat, viết code, sáng tạo nội dung — tất cả trong một. Hỗ trợ giọng nói 2 chiều, Custom GPT, Affiliate kiếm tiền. Bắt đầu miễn phí." data-en="Chat, code, create — all in one place. Voice 2-way, Custom GPT, Affiliate program. Start free, upgrade when you need more.">Chat, viết code, sáng tạo nội dung — tất cả trong một. Hỗ trợ giọng nói 2 chiều, Custom GPT, Affiliate kiếm tiền. Bắt đầu miễn phí.</p>
+        <div class="hero-cta">
+            <a href="/register" class="btn btn-primary" data-vi="Bắt đầu miễn phí" data-en="Start Free">Bắt đầu miễn phí</a>
+            <a href="/chat" class="btn btn-outline" data-vi="Dùng thử ngay" data-en="Try Demo">Dùng thử ngay</a>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <h2 data-vi="Tính năng nổi bật" data-en="Everything You Need">Tính năng nổi bật</h2>
+        <p class="sub" data-vi="Được nghiên cứu và phát triển bởi Nguyễn Thế Trình" data-en="Researched and developed by Nguyen The Trinh">Được nghiên cứu và phát triển bởi Nguyễn Thế Trình</p>
+        <div class="feature-grid">
+            <div class="feature-card"><div class="icon">⚡</div><h3 data-vi="Streaming thời gian thực" data-en="Real-time Streaming">Streaming thời gian thực</h3><p data-vi="Phản hồi từng chữ ngay lập tức. Nhanh, mượt, không chờ đợi." data-en="Watch responses appear word by word. Fast inference powered by SbayAI.">Phản hồi từng chữ ngay lập tức. Nhanh, mượt, không chờ đợi.</p></div>
+            <div class="feature-card"><div class="icon">🎙️</div><h3 data-vi="Giọng nói 2 chiều" data-en="Voice 2-Way Chat">Giọng nói 2 chiều</h3><p data-vi="Nói chuyện trực tiếp với AI. Nói → AI nghe → AI trả lời bằng giọng nói." data-en="Talk directly with AI. Speak → AI listens → AI responds with voice.">Nói chuyện trực tiếp với AI. Nói → AI nghe → AI trả lời bằng giọng nói.</p></div>
+            <div class="feature-card"><div class="icon">🤖</div><h3 data-vi="Custom GPT" data-en="Custom GPT Builder">Custom GPT</h3><p data-vi="Tạo AI riêng với prompt, knowledge, tools tùy chỉnh. Như SbayAI Plus." data-en="Create your own AI with custom prompt, knowledge, and tools.">Tạo AI riêng với prompt, knowledge, tools tùy chỉnh. Như SbayAI Plus.</p></div>
+            <div class="feature-card"><div class="icon">💻</div><h3 data-vi="Code highlighting" data-en="Code Highlighting">Code highlighting</h3><p data-vi="Hỗ trợ 100+ ngôn ngữ lập trình. Copy code 1 click." data-en="Syntax highlighting for 100+ languages. One-click copy.">Hỗ trợ 100+ ngôn ngữ lập trình. Copy code 1 click.</p></div>
+            <div class="feature-card"><div class="icon">💰</div><h3 data-vi="Affiliate 2 tầng" data-en="2-Tier Affiliate">Affiliate 2 tầng</h3><p data-vi="Giới thiệu bạn bè kiếm 20%. Tầng 2 kiếm thêm 10%. Thu nhập thụ động." data-en="Refer friends, earn 20%. Tier 2 earns 10%. Passive income.">Giới thiệu bạn bè kiếm 20%. Tầng 2 kiếm thêm 10%. Thu nhập thụ động.</p></div>
+            <div class="feature-card"><div class="icon">📱</div><h3 data-vi="Responsive mọi thiết bị" data-en="Mobile Friendly">Responsive mọi thiết bị</h3><p data-vi="Dùng tốt trên điện thoại, tablet, máy tính. Mọi lúc mọi nơi." data-en="Works great on phone, tablet, desktop. Anywhere, anytime.">Dùng tốt trên điện thoại, tablet, máy tính. Mọi lúc mọi nơi.</p></div>
+        </div>
+    </section>
+
+    <section class="pricing" id="pricing">
+        <h2 data-vi="Bảng giá đơn giản" data-en="Simple Pricing">Bảng giá đơn giản</h2>
+        <div class="pricing-grid">
+            <div class="plan-card">
+                <div class="plan-name" data-vi="Miễn phí" data-en="Free">Miễn phí</div>
+                <div class="plan-price">$0<span>/th</span></div>
+                <ul class="plan-features">
+                    <li data-vi="10 tin nhắn/ngày" data-en="10 messages/day">10 tin nhắn/ngày</li>
+                    <li data-vi="5 cuộc hội thoại" data-en="5 conversations">5 cuộc hội thoại</li>
+                    <li data-vi="Chat cơ bản" data-en="Basic chat">Chat cơ bản</li>
+                </ul>
+                <a href="/register" class="btn btn-outline" style="width:100%;padding:14px" data-vi="Bắt đầu" data-en="Get Started">Bắt đầu</a>
+            </div>
+            <div class="plan-card popular" data-badge="PHỔ BIẾN">
+                <div class="plan-name">Pro</div>
+                <div class="plan-price">$9.99<span>/th</span></div>
+                <ul class="plan-features">
+                    <li data-vi="100 tin nhắn/ngày" data-en="100 messages/day">100 tin nhắn/ngày</li>
+                    <li data-vi="50 cuộc hội thoại" data-en="50 conversations">50 cuộc hội thoại</li>
+                    <li data-vi="Hỗ trợ ưu tiên" data-en="Priority support">Hỗ trợ ưu tiên</li>
+                    <li data-vi="Model nâng cao" data-en="Advanced models">Model nâng cao</li>
+                </ul>
+                <a href="/register" class="btn btn-primary" style="width:100%;padding:14px" data-vi="Nâng cấp Pro" data-en="Upgrade to Pro">Nâng cấp Pro</a>
+            </div>
+            <div class="plan-card">
+                <div class="plan-name">Premium</div>
+                <div class="plan-price">$29.99<span>/th</span></div>
+                <ul class="plan-features">
+                    <li data-vi="Không giới hạn tin nhắn" data-en="Unlimited messages">Không giới hạn tin nhắn</li>
+                    <li data-vi="Không giới hạn hội thoại" data-en="Unlimited conversations">Không giới hạn hội thoại</li>
+                    <li data-vi="Tất cả model" data-en="All models">Tất cả model</li>
+                    <li data-vi="API access" data-en="API access">API access</li>
+                </ul>
+                <a href="/register" class="btn btn-outline" style="width:100%;padding:14px" data-vi="Dùng Premium" data-en="Go Premium">Dùng Premium</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="email-cta">
+        <h2 data-vi="Nhận tin mới & ưu đãi" data-en="Get Updates & Offers">Nhận tin mới & ưu đãi</h2>
+        <p data-vi="Đăng ký email để nhận thông báo tính năng mới và khuyến mãi." data-en="Subscribe for new features and special promotions.">Đăng ký email để nhận thông báo tính năng mới và khuyến mãi.</p>
+        <form class="email-form" id="emailForm">
+            <input type="email" id="leadEmail" placeholder="Email" required>
+            <button type="submit" data-vi="Đăng ký" data-en="Subscribe">Đăng ký</button>
+        </form>
+        <p id="emailMsg" style="margin-top:12px;font-size:13px;color:var(--red);display:none"></p>
+    </section>
+
+    <footer>
+        <p data-vi="© 2026 SbayAI. Nghiên cứu và phát triển bởi Nguyễn Thế Trình. Liên hệ: 0815340488" data-en="© 2026 SbayAI. Developed by Nguyen The Trinh. Contact: 0815340488">© 2026 SbayAI. Nghiên cứu và phát triển bởi Nguyễn Thế Trình. Liên hệ: 0815340488</p>
+    </footer>
+
+    <script>
+    // ===== Language Toggle =====
+    let currentLang = localStorage.getItem('lang') || 'vi';
+    applyLang(currentLang);
+
+    function toggleLang() {
+        currentLang = currentLang === 'vi' ? 'en' : 'vi';
+        localStorage.setItem('lang', currentLang);
+        applyLang(currentLang);
+    }
+
+    function applyLang(lang) {
+        document.querySelectorAll('[data-vi]').forEach(el => {
+            el.innerHTML = el.getAttribute('data-' + lang) || el.innerHTML;
+        });
+        const btn = document.getElementById('langToggle');
+        btn.textContent = lang === 'vi' ? 'EN 🇬🇧' : 'VI 🇻🇳';
+        document.documentElement.lang = lang;
+        // Update badge
+        const popular = document.querySelector('.plan-card.popular');
+        if (popular) popular.setAttribute('data-badge', lang === 'vi' ? 'PHỔ BIẾN' : 'POPULAR');
+    }
+
+    // ===== Email =====
+    document.getElementById('emailForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('leadEmail').value;
+        try {
+            await fetch('/api/leads', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})});
+            document.getElementById('emailMsg').textContent = currentLang === 'vi' ? 'Đã đăng ký thành công!' : 'Subscribed successfully!';
+            document.getElementById('emailMsg').style.display = 'block';
+            document.getElementById('leadEmail').value = '';
+        } catch(e) {
+            document.getElementById('emailMsg').textContent = 'Error';
+            document.getElementById('emailMsg').style.display = 'block';
+        }
+    });
+    </script>
+</body>
+</html>

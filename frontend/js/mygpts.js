@@ -1,0 +1,205 @@
+/**
+ * MyGpts — quan ly "GPT cua toi" (them/sua/xoa)
+ * Guest mode: luu localStorage. Login: sync /api/gpts/.
+ */
+const MyGpts = {
+    items: [],
+    storageKey: 'myGpts_v1',
+
+    // Không có defaults — user tự tạo GPT riêng
+    defaults: [],
+
+    load() {
+        try {
+            const raw = localStorage.getItem(this.storageKey);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                // Xóa defaults cũ (g1-g4)
+                this.items = parsed.filter(g => !['g1','g2','g3','g4'].includes(g.id));
+                if (this.items.length !== parsed.length) this.save();
+            } else {
+                this.items = [];
+            }
+        } catch (e) {
+            this.items = [];
+        }
+        this.render();
+    },
+
+    save() {
+        try { localStorage.setItem(this.storageKey, JSON.stringify(this.items)); } catch(_) {}
+    },
+
+    render() {
+        const list = document.getElementById('gptList');
+        if (!list) return;
+        if (this.items.length === 0) {
+            list.innerHTML = '<div style="padding:8px 12px;color:var(--text-muted);font-size:13px">Chưa có GPT. Bấm + để tạo.</div>';
+            return;
+        }
+        list.innerHTML = this.items.map(g => `
+            <div class="gpt-row" data-id="${g.id}">
+                <button class="sidebar-btn gpt-item" onclick="MyGpts.use('${g.id}')">
+                    <span class="gpt-avatar" style="background:${g.color}">${g.initials}</span>
+                    <span class="gpt-name">${this._escape(g.name)}</span>
+                </button>
+                <div class="gpt-actions">
+                    <button class="gpt-action-btn" title="Sửa" onclick="MyGpts.edit('${g.id}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </button>
+                    <button class="gpt-action-btn" title="Xóa" onclick="MyGpts.delete('${g.id}')">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14H7L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    use(id) {
+        const g = this.items.find(x => x.id === id);
+        if (!g) return;
+        if (window.Sidebar) Sidebar.newChat();
+        if (window.Chat) {
+            Chat.activePresetName = g.name;
+            Chat.activeSystemPrompt = g.system_prompt;
+        }
+        const welcome = document.getElementById('welcome');
+        if (welcome) {
+            welcome.innerHTML = `<div style="text-align:center">
+                <div class="gpt-avatar" style="background:${g.color};width:64px;height:64px;font-size:24px;margin:0 auto 12px">${g.initials}</div>
+                <h1>${this._escape(g.name)}</h1>
+                <p style="color:var(--text-muted);font-size:15px;margin-top:8px">Đang dùng GPT này. Hỏi gì cũng được.</p>
+            </div>`;
+        }
+        const ms = document.getElementById('modelSelector');
+        if (ms && ms.childNodes[0]) ms.childNodes[0].textContent = g.name + ' ';
+        document.title = g.name;
+        const inp = document.getElementById('messageInput');
+        if (inp) inp.focus();
+    },
+
+    create() {
+        this._showModal({
+            id: '',
+            name: '',
+            initials: '',
+            color: '#7c3aed',
+            system_prompt: 'Bạn là một trợ lý hữu ích. Trả lời tiếng Việt, ngắn gọn, chính xác.',
+        }, true);
+    },
+
+    edit(id) {
+        const g = this.items.find(x => x.id === id);
+        if (!g) return;
+        this._showModal({ ...g }, false);
+    },
+
+    delete(id) {
+        const g = this.items.find(x => x.id === id);
+        if (!g) return;
+        if (!confirm(`Xóa GPT "${g.name}"?`)) return;
+        this.items = this.items.filter(x => x.id !== id);
+        this.save();
+        this.render();
+    },
+
+    _showModal(g, isNew) {
+        const modal = document.createElement('div');
+        modal.className = 'gpt-modal-overlay';
+        modal.innerHTML = `
+            <div class="gpt-modal">
+                <div class="gpt-modal-header">
+                    <h2>${isNew ? 'Tạo GPT mới' : 'Sửa GPT'}</h2>
+                    <button class="gpt-modal-close" onclick="this.closest('.gpt-modal-overlay').remove()">&times;</button>
+                </div>
+                <div class="gpt-modal-body">
+                    <label>Tên</label>
+                    <input type="text" id="gpt-name" value="${this._escape(g.name)}" placeholder="VD: Trợ lý kế toán" maxlength="40">
+
+                    <label>Chữ viết tắt (avatar)</label>
+                    <input type="text" id="gpt-initials" value="${this._escape(g.initials)}" placeholder="VD: TK" maxlength="3">
+
+                    <label>Màu avatar</label>
+                    <div class="gpt-color-row">
+                        ${['#7c3aed','#2563eb','#16a34a','#ea580c','#dc2626','#db2777','#0891b2','#65a30d'].map(c =>
+                            `<button type="button" class="gpt-color-swatch ${g.color===c?'selected':''}" style="background:${c}" data-color="${c}"></button>`
+                        ).join('')}
+                    </div>
+
+                    <label>System prompt (tính cách + nhiệm vụ)</label>
+                    <textarea id="gpt-prompt" rows="6" placeholder="VD: Bạn là...">${this._escape(g.system_prompt)}</textarea>
+                </div>
+                <div class="gpt-modal-footer">
+                    <button class="gpt-modal-btn-cancel" onclick="this.closest('.gpt-modal-overlay').remove()">Hủy</button>
+                    <button class="gpt-modal-btn-save">Lưu</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        // Color swatch click
+        let selectedColor = g.color;
+        modal.querySelectorAll('.gpt-color-swatch').forEach(sw => {
+            sw.onclick = () => {
+                modal.querySelectorAll('.gpt-color-swatch').forEach(s => s.classList.remove('selected'));
+                sw.classList.add('selected');
+                selectedColor = sw.dataset.color;
+            };
+        });
+
+        // Auto-update initials tu name
+        modal.querySelector('#gpt-name').addEventListener('input', (e) => {
+            const initialsEl = modal.querySelector('#gpt-initials');
+            if (!initialsEl.value || initialsEl.dataset.auto === '1') {
+                const words = e.target.value.trim().split(/\s+/);
+                const auto = (words[0]?.[0] || '') + (words[1]?.[0] || '');
+                initialsEl.value = auto.toUpperCase();
+                initialsEl.dataset.auto = '1';
+            }
+        });
+        modal.querySelector('#gpt-initials').addEventListener('input', (e) => {
+            e.target.dataset.auto = '0';
+        });
+
+        // Save
+        modal.querySelector('.gpt-modal-btn-save').onclick = () => {
+            const name = modal.querySelector('#gpt-name').value.trim();
+            const initials = (modal.querySelector('#gpt-initials').value.trim() || name.substring(0, 2)).toUpperCase().substring(0, 3);
+            const prompt = modal.querySelector('#gpt-prompt').value.trim();
+            if (!name) { alert('Cần nhập tên'); return; }
+            if (!prompt) { alert('Cần nhập system prompt'); return; }
+
+            if (isNew) {
+                this.items.push({
+                    id: 'g_' + Date.now(),
+                    name, initials, color: selectedColor, system_prompt: prompt,
+                });
+            } else {
+                const idx = this.items.findIndex(x => x.id === g.id);
+                if (idx >= 0) this.items[idx] = { ...this.items[idx], name, initials, color: selectedColor, system_prompt: prompt };
+            }
+            this.save();
+            this.render();
+            modal.remove();
+        };
+
+        // ESC de dong
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        const escHandler = (e) => { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); } };
+        document.addEventListener('keydown', escHandler);
+
+        // Auto focus
+        setTimeout(() => modal.querySelector('#gpt-name').focus(), 50);
+    },
+
+    _escape(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    },
+};
+
+// Init khi DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    MyGpts.load();
+    const addBtn = document.getElementById('gptAddBtn');
+    if (addBtn) addBtn.onclick = () => MyGpts.create();
+});

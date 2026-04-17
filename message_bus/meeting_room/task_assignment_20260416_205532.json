@@ -1,0 +1,44 @@
+[
+  {
+    "task_id": "T1",
+    "file": "backend/chat.py",
+    "description": "Review and fix SSE streaming endpoint — ensure proper error handling, conversation_id flow, and system prompt",
+    "assigned_to": "build_backend_stream",
+    "priority": 1
+  },
+  {
+    "task_id": "T2",
+    "file": "frontend/css/style.css",
+    "description": "Polish ChatGPT dark theme — match exact ChatGPT colors, spacing, scrollbar, message bubbles, responsive",
+    "assigned_to": "build_frontend_css",
+    "priority": 1
+  },
+  {
+    "task_id": "T3",
+    "file": "frontend/js/chat.js",
+    "description": "Fix streaming display — smooth token append, typing indicator removal, error display, auto-scroll behavior",
+    "assigned_to": "build_frontend_chat",
+    "priority": 1
+  },
+  {
+    "task_id": "T4",
+    "file": "frontend/js/sidebar.js",
+    "description": "Fix conversation list — proper date grouping, active state, delete with confirmation, refresh after actions",
+    "assigned_to": "build_frontend_sidebar",
+    "priority": 2
+  },
+  {
+    "task_id": "T5",
+    "file": "frontend/js/markdown.js",
+    "description": "Fix code block rendering — proper language detection, copy button, inline code styling",
+    "assigned_to": "build_markdown",
+    "priority": 2
+  },
+  {
+    "task_id": "T6",
+    "file": "backend/sessions.py",
+    "description": "Add LocalStorage sync endpoint — export/import conversations for persistence",
+    "assigned_to": "build_backend_api",
+    "priority": 3
+  }
+]

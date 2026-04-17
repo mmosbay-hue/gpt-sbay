@@ -1,0 +1,17 @@
+{
+  "short_term": [
+    {
+      "key": "task_assigned",
+      "content": "Fix code block rendering — proper language detection, copy button, inline code styling",
+      "timestamp": "2026-04-16T20:56:13.549767"
+    }
+  ],
+  "long_term": [],
+  "tasks_done": [
+    {
+      "task": "Fix code block rendering — proper language detection, copy button, inline code styling",
+      "timestamp": "2026-04-16T20:59:29.592283"
+    }
+  ],
+  "insights": []
+}

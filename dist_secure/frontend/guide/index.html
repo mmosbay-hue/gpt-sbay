@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hướng dẫn sử dụng — SbayAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root{--red:#dc2626;--red-light:#fef2f2;--red-dark:#b91c1c;--red-border:#fca5a5;--text:#1a1a1a;--muted:#888;--border:#eee;--bg:#fff}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+        nav{display:flex;justify-content:space-between;align-items:center;padding:16px 32px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:50}
+        nav .logo{display:flex;align-items:center}
+        nav .logo img{height:32px}
+        nav .links{display:flex;gap:16px;align-items:center}
+        nav a{color:var(--muted);font-size:14px;font-weight:500;text-decoration:none}
+        nav a:hover{color:var(--red)}
+        .container{max-width:800px;margin:0 auto;padding:48px 24px}
+        h1{font-size:36px;font-weight:800;margin-bottom:8px;color:var(--text)}
+        h1 span{color:var(--red)}
+        .subtitle{color:var(--muted);font-size:16px;margin-bottom:40px}
+        h2{font-size:22px;font-weight:700;margin:40px 0 16px;color:var(--red);display:flex;align-items:center;gap:10px}
+        h2 .num{width:32px;height:32px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+        h3{font-size:17px;font-weight:600;margin:20px 0 8px}
+        p{margin:12px 0;font-size:15px}
+        .step{background:var(--red-light);border:1px solid var(--red-border);border-radius:16px;padding:24px;margin:16px 0}
+        .step-title{font-weight:700;font-size:16px;margin-bottom:8px;color:var(--red-dark)}
+        .step p{margin:4px 0;font-size:14px;color:#333}
+        ul{padding-left:24px;margin:12px 0}
+        li{margin:8px 0;font-size:14px}
+        .highlight{background:var(--red-light);padding:2px 8px;border-radius:6px;font-weight:600;color:var(--red-dark)}
+        .key{display:inline-block;padding:3px 10px;background:#f3f3f3;border:1px solid #ddd;border-radius:6px;font-size:13px;font-family:monospace;font-weight:600}
+        .cta-box{background:var(--red);color:#fff;border-radius:16px;padding:32px;text-align:center;margin:40px 0}
+        .cta-box h3{color:#fff;font-size:20px;margin-bottom:8px}
+        .cta-box p{color:rgba(255,255,255,.8);margin-bottom:16px}
+        .cta-box a{display:inline-block;padding:12px 32px;background:#fff;color:var(--red);border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
+        .tabs{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
+        .tab{padding:10px 20px;border:2px solid var(--red-border);border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--text);transition:all .15s}
+        .tab:hover,.tab.active{background:var(--red);color:#fff;border-color:var(--red)}
+        .tab-content{display:none}
+        .tab-content.active{display:block}
+        .table-wrap{overflow-x:auto;margin:16px 0}
+        table{width:100%;border-collapse:collapse}
+        th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);font-size:14px}
+        th{background:var(--red-light);color:var(--red-dark);font-weight:700;font-size:13px}
+        .badge{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}
+        .badge-free{background:#f3f3f3;color:#888}
+        .badge-pro{background:var(--red-light);color:var(--red)}
+        .badge-premium{background:var(--red);color:#fff}
+        footer{text-align:center;padding:32px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);margin-top:48px}
+        @media(max-width:768px){h1{font-size:28px} .container{padding:24px 16px}}
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="logo"><img src="/static/logo.svg" alt="Sbay"></a>
+        <div class="links">
+            <a href="/chat">Chat</a>
+            <a href="/affiliate">Affiliate</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Hướng dẫn sử dụng <span>SbayAI</span></h1>
+        <p class="subtitle">Tất cả những gì bạn cần biết để sử dụng SbayAI hiệu quả nhất</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('usage')">Hướng dẫn sử dụng</div>
+            <div class="tab" onclick="showTab('affiliate')">Affiliate Marketing</div>
+            <div class="tab" onclick="showTab('pricing')">Bảng giá</div>
+        </div>
+
+        <!-- ==================== TAB 1: HƯỚNG DẪN SỬ DỤNG ==================== -->
+        <div class="tab-content active" id="tab-usage">
+
+            <h2><span class="num">1</span> Đăng ký tài khoản</h2>
+            <div class="step">
+                <div class="step-title">Bước 1: Truy cập trang đăng ký</div>
+                <p>Vào <span class="highlight">sbayai.com/register</span> hoặc nhấn "Dùng miễn phí" trên trang chủ</p>
+                <div class="step-title">Bước 2: Điền thông tin</div>
+                <p>Nhập: Tên → Số điện thoại → Email → Mật khẩu (tối thiểu 6 ký tự)</p>
+                <div class="step-title">Bước 3: Cho phép vị trí</div>
+                <p>Browser sẽ hỏi quyền vị trí → Nhấn "Allow" để cá nhân hóa trải nghiệm</p>
+            </div>
+
+            <h2><span class="num">2</span> Chat với AI</h2>
+            <div class="step">
+                <div class="step-title">Chat cơ bản</div>
+                <p>Gõ câu hỏi vào ô input → Nhấn <span class="key">Enter</span> hoặc nút gửi (mũi tên)</p>
+                <p>AI sẽ trả lời streaming (từng chữ) ngay lập tức</p>
+                <div class="step-title">Xuống dòng</div>
+                <p>Nhấn <span class="key">Shift + Enter</span> để xuống dòng mà không gửi</p>
+            </div>
+
+            <h2><span class="num">3</span> 6 chế độ thông minh</h2>
+            <div class="step">
+                <div class="step-title">Nhấn nút bên dưới ô chat để kích hoạt:</div>
+                <ul>
+                    <li><span class="highlight">❓ Ask</span> — AI hỏi ngược để hiểu 100% vấn đề, có gợi ý bấm nhanh</li>
+                    <li><span class="highlight">📋 Plan</span> — Lập kế hoạch chi tiết với timeline + nguồn lực</li>
+                    <li><span class="highlight">💡 Idea</span> — Brainstorm 10+ ý tưởng, xếp hạng theo khả thi</li>
+                    <li><span class="highlight">⚡ Fast</span> — Trả lời cực ngắn, tối đa 3 câu</li>
+                    <li><span class="highlight">✍️ Content</span> — Soạn content marketing (Hook + Body + CTA)</li>
+                    <li><span class="highlight">🎯 Prompt</span> — Soạn câu lệnh AI chuyên nghiệp</li>
+                </ul>
+                <p>Nhấn lần nữa để tắt chế độ</p>
+            </div>
+
+            <h2><span class="num">4</span> Giọng nói 2 chiều</h2>
+            <div class="step">
+                <div class="step-title">Nút mic (microphone) — Chuyển giọng nói thành văn bản</div>
+                <p>Nhấn mic → Nói tiếng Việt → Text xuất hiện → Nhấn gửi</p>
+                <div class="step-title">Nút sóng (audio wave) — Nói chuyện 2 chiều</div>
+                <p>Nhấn nút sóng đỏ → Nói → AI nghe → AI trả lời bằng giọng nói → Mic tự bật lại → Tiếp tục</p>
+                <p>Nhấn lần nữa để dừng</p>
+            </div>
+
+            <h2><span class="num">5</span> Phím tắt</h2>
+            <div class="table-wrap">
+                <table>
+                    <tr><th>Phím</th><th>Chức năng</th></tr>
+                    <tr><td><span class="key">Ctrl + N</span></td><td>Tạo chat mới</td></tr>
+                    <tr><td><span class="key">Ctrl + /</span></td><td>Tìm kiếm đoạn chat</td></tr>
+                    <tr><td><span class="key">Ctrl + D</span></td><td>Chuyển Dark/Light mode</td></tr>
+                    <tr><td><span class="key">Esc</span></td><td>Đóng tìm kiếm</td></tr>
+                    <tr><td><span class="key">Enter</span></td><td>Gửi tin nhắn</td></tr>
+                    <tr><td><span class="key">Shift + Enter</span></td><td>Xuống dòng</td></tr>
+                </table>
+            </div>
+
+            <h2><span class="num">6</span> Các nút trên tin nhắn</h2>
+            <div class="step">
+                <p>Hover lên tin nhắn AI để thấy:</p>
+                <ul>
+                    <li><strong>📋 Copy</strong> — Sao chép nội dung</li>
+                    <li><strong>🔄 Tạo lại</strong> — AI trả lời lại câu hỏi</li>
+                </ul>
+                <p>Hover lên tin nhắn của bạn:</p>
+                <ul>
+                    <li><strong>✏️ Chỉnh sửa</strong> — Sửa câu hỏi và gửi lại</li>
+                </ul>
+            </div>
+
+            <h2><span class="num">7</span> Custom GPT</h2>
+            <div class="step">
+                <p>Vào <span class="highlight">GPT Builder</span> (nhấn nút "+" bên sidebar)</p>
+                <ul>
+                    <li>Đặt tên + mô tả cho AI riêng</li>
+                    <li>Viết System Prompt tùy chỉnh</li>
+                    <li>Upload file knowledge (AI sẽ đọc để trả lời)</li>
+                    <li>Chọn tools: Code exec, Web browse, File upload</li>
+                </ul>
+            </div>
+
+            <h2><span class="num">8</span> Cài đặt app</h2>
+            <div class="step">
+                <div class="step-title">Desktop (Chrome/Edge)</div>
+                <p>Nhấn nút "Cài đặt" khi banner hiện lên, hoặc: Menu ⋮ → "Install SbayAI"</p>
+                <div class="step-title">Android</div>
+                <p>Chrome → Menu ⋮ → "Thêm vào màn hình chính"</p>
+                <div class="step-title">iPhone/iPad</div>
+                <p>Safari → Nút Chia sẻ (↑) → "Thêm vào Màn hình chính"</p>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: AFFILIATE ==================== -->
+        <div class="tab-content" id="tab-affiliate">
+
+            <h2><span class="num">1</span> Affiliate 2 tầng là gì?</h2>
+            <div class="step">
+                <p>Bạn giới thiệu người dùng mới → Họ đăng ký + nâng cấp trả tiền → <strong>Bạn nhận hoa hồng tự động:</strong></p>
+                <ul>
+                    <li><span class="highlight">Tầng 1: 20%</span> — Người bạn giới thiệu trực tiếp</li>
+                    <li><span class="highlight">Tầng 2: 10%</span> — Người mà người tầng 1 giới thiệu tiếp</li>
+                </ul>
+            </div>
+
+            <h2><span class="num">2</span> Quy trình từng bước</h2>
+            <div class="step">
+                <div class="step-title">Bước 1: Lấy link giới thiệu</div>
+                <p>Vào <span class="highlight">/affiliate</span> → Copy link dạng: <strong>sbayai.com/register?ref=ABC12345</strong></p>
+
+                <div class="step-title">Bước 2: Chia sẻ link</div>
+                <p>Gửi link cho bạn bè qua Zalo, Facebook, Telegram, Email, hoặc bất kỳ kênh nào</p>
+
+                <div class="step-title">Bước 3: Người bạn đăng ký</div>
+                <p>Khi họ click link → đăng ký → hệ thống tự ghi nhận bạn là người giới thiệu (tầng 1)</p>
+
+                <div class="step-title">Bước 4: Họ giới thiệu tiếp</div>
+                <p>Người tầng 1 cũng có link riêng → giới thiệu tiếp → bạn trở thành tầng 2</p>
+
+                <div class="step-title">Bước 5: Nhận hoa hồng</div>
+                <p>Khi bất kỳ ai trong mạng lưới nâng cấp Pro ($9.99) hoặc Premium ($29.99):</p>
+                <ul>
+                    <li>Tầng 1 nhận 20% → VD: $9.99 × 20% = <strong>$2.00</strong></li>
+                    <li>Tầng 2 nhận 10% → VD: $9.99 × 10% = <strong>$1.00</strong></li>
+                </ul>
+            </div>
+
+            <h2><span class="num">3</span> Ví dụ thực tế</h2>
+            <div class="step">
+                <pre style="font-size:14px;line-height:1.8;color:#333">
+Bạn (A)
+ ├── User B (bạn giới thiệu) → B nâng cấp Pro → Bạn nhận $2.00 (20%)
+ │     ├── User D (B giới thiệu) → D nâng cấp Pro → B nhận $2.00, Bạn nhận $1.00 (10%)
+ │     └── User E (B giới thiệu) → E nâng cấp Premium → B nhận $6.00, Bạn nhận $3.00
+ └── User C (bạn giới thiệu) → C nâng cấp Premium → Bạn nhận $6.00 (20%)
+
+💰 Tổng thu nhập thụ động của bạn: $12.00/tháng chỉ từ 2 người giới thiệu trực tiếp!
+                </pre>
+            </div>
+
+            <h2><span class="num">4</span> Dashboard Affiliate</h2>
+            <div class="step">
+                <p>Tại <span class="highlight">/affiliate</span> bạn xem được:</p>
+                <ul>
+                    <li><strong>💰 Tổng thu nhập</strong> — tất cả hoa hồng đã nhận</li>
+                    <li><strong>⚡ Hôm nay</strong> — hoa hồng trong ngày</li>
+                    <li><strong>👥 Tầng 1</strong> — số người bạn giới thiệu trực tiếp</li>
+                    <li><strong>🌐 Tầng 2</strong> — số người tầng 2</li>
+                    <li><strong>🔗 Link giới thiệu</strong> — copy 1 click</li>
+                    <li><strong>🌳 Sơ đồ cây</strong> — ai giới thiệu ai</li>
+                    <li><strong>📊 Bảng hoa hồng</strong> — chi tiết từng giao dịch</li>
+                </ul>
+            </div>
+
+            <h2><span class="num">5</span> Mẹo tăng thu nhập</h2>
+            <div class="step">
+                <ul>
+                    <li>✅ Chia sẻ link trên group Zalo/Facebook có nhiều người cần AI</li>
+                    <li>✅ Viết bài review SbayAI trên blog/fanpage</li>
+                    <li>✅ Gửi cho đồng nghiệp, bạn bè trong ngành</li>
+                    <li>✅ Tạo video TikTok/YouTube hướng dẫn dùng SbayAI</li>
+                    <li>✅ Khuyến khích tầng 1 cũng chia sẻ → bạn hưởng tầng 2</li>
+                    <li>❌ KHÔNG spam link — sẽ bị khóa tài khoản</li>
+                </ul>
+            </div>
+
+            <div class="cta-box">
+                <h3>Bắt đầu kiếm tiền ngay!</h3>
+                <p>Chỉ cần chia sẻ link → thu nhập thụ động mỗi tháng</p>
+                <a href="/affiliate">Lấy link giới thiệu →</a>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: BẢNG GIÁ ==================== -->
+        <div class="tab-content" id="tab-pricing">
+            <h2><span class="num">💎</span> So sánh gói dịch vụ</h2>
+            <div class="table-wrap">
+                <table>
+                    <tr>
+                        <th>Tính năng</th>
+                        <th><span class="badge badge-free">Free</span></th>
+                        <th><span class="badge badge-pro">Pro $9.99</span></th>
+                        <th><span class="badge badge-premium">Premium $29.99</span></th>
+                    </tr>
+                    <tr><td>Tin nhắn/ngày</td><td>10</td><td>100</td><td>Không giới hạn</td></tr>
+                    <tr><td>Cuộc hội thoại</td><td>5</td><td>50</td><td>Không giới hạn</td></tr>
+                    <tr><td>6 chế độ AI</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>Giọng nói 2 chiều</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>Custom GPT</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>Upload file</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>Hỗ trợ ưu tiên</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>API access</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                    <tr><td>Model nâng cao</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                    <tr><td>Affiliate</td><td>✅ 20%+10%</td><td>✅ 20%+10%</td><td>✅ 20%+10%</td></tr>
+                </table>
+            </div>
+
+            <div class="cta-box">
+                <h3>Nâng cấp ngay để mở khóa tất cả</h3>
+                <p>Bắt đầu miễn phí, nâng cấp khi cần</p>
+                <a href="/pricing">Xem bảng giá →</a>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 SbayAI — Nghiên cứu và phát triển bởi Nguyễn Thế Trình. Liên hệ: 0815340488</p>
+    </footer>
+
+    <script>
+    function showTab(name) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-' + name).classList.add('active');
+    }
+    </script>
+</body>
+</html>

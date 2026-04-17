@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "agent": "Markdown Builder",
+  "file": "frontend/js/markdown.js",
+  "task": "Fix code block rendering — proper language detection, copy button, inline code styling",
+  "timestamp": "2026-04-16T20:59:29.594050"
+}

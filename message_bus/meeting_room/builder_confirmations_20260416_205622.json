@@ -1,0 +1,62 @@
+[
+  {
+    "task": {
+      "task_id": "T1",
+      "file": "backend/chat.py",
+      "description": "Review and fix SSE streaming endpoint — ensure proper error handling, conversation_id flow, and system prompt",
+      "assigned_to": "build_backend_stream",
+      "priority": 1
+    },
+    "confirmation": "I understand the code. I'll fix the SSE streaming endpoint.\n\nChanges needed:\n1. **Line 28-32**: Remove duplicate conversation creation logic. Keep only one block.\n2. **Line 37**: Fix message building - `conv[\"messages\"]` already includes user message, so adding SYSTEM_PROMPT at start is correct.\n3. **Line 41**: Add proper error handling for the streaming response.\n4. **Line 44-55**: Ensure the stream handling catches all exceptions and sends proper SSE format.\n5. **Line 57**: Move `add_message` inside try block to only save on successful completion.\n\nQuestions: \n- Should `SYSTEM_PROMPT` be added to every request or only once per conversation?\n- Does `chat()` function from `deepseek_client` handle streaming properly?"
+  },
+  {
+    "task": {
+      "task_id": "T2",
+      "file": "frontend/css/style.css",
+      "description": "Polish ChatGPT dark theme — match exact ChatGPT colors, spacing, scrollbar, message bubbles, responsive",
+      "assigned_to": "build_frontend_css",
+      "priority": 1
+    },
+    "confirmation": "I understand. I'll update the CSS to match ChatGPT's exact dark theme colors, spacing, scrollbar styling, message bubbles, and ensure responsive design. I'll add smooth animations where appropriate.\n\nHere are the changes I'll make:\n\n1. **Update color variables** (lines 3-17) to exact ChatGPT values\n2. **Add scrollbar styling** for both webkit and Firefox\n3. **Complete message bubble styling** for both user and assistant\n4. **Add responsive breakpoints** for mobile/tablet\n5. **Complete sidebar styling** including delete button\n6. **Add main chat area styling** with proper spacing\n7. **Add input area styling** with animations\n8. **Add loading animations** for typing indicators\n\nQuestions: Should I also add the ChatGPT logo/icon styling and the model selector dropdown?"
+  },
+  {
+    "task": {
+      "task_id": "T3",
+      "file": "frontend/js/chat.js",
+      "description": "Fix streaming display — smooth token append, typing indicator removal, error display, auto-scroll behavior",
+      "assigned_to": "build_frontend_chat",
+      "priority": 1
+    },
+    "confirmation": "I understand the code. I'll fix streaming display by modifying:\n\n1. `createStreamMessage()` (line ~45) – remove typing indicator after streaming starts.\n2. `appendMessage()` (line ~30) – handle smooth token appending for assistant messages.\n3. Add error display logic in streaming handling.\n4. Ensure auto-scroll works during streaming.\n\nQuestions: \n1. Should error messages appear in chat area or as separate alerts?\n2. Is there existing SSE handling code that calls these methods? I only see partial `async` at the end.\n\nI'll implement smooth token appending using textContent updates and CSS transitions, remove typing indicator when first token arrives, add error display, and maintain auto-scroll."
+  },
+  {
+    "task": {
+      "task_id": "T4",
+      "file": "frontend/js/sidebar.js",
+      "description": "Fix conversation list — proper date grouping, active state, delete with confirmation, refresh after actions",
+      "assigned_to": "build_frontend_sidebar",
+      "priority": 2
+    },
+    "confirmation": "I understand the code. It loads conversations, groups them by date, and renders a list with delete buttons. The code is incomplete (cut off after `select` method).\n\n**What I will change/fix:**\n1. Complete the `select` method (line 48+) to properly handle conversation selection and UI updates.\n2. Add a `delete` method with confirmation dialog before deleting.\n3. Ensure `load()` is called after delete/select to refresh the list.\n4. Fix date grouping to handle older dates beyond yesterday.\n5. Add proper error handling for API calls.\n\n**Questions:**\n- Should deleted conversations be removed from the list immediately or after API confirmation?\n- What should happen when selecting a conversation? (The method is incomplete)\n- Are there any specific CSS classes I should use for active states?"
+  },
+  {
+    "task": {
+      "task_id": "T5",
+      "file": "frontend/js/markdown.js",
+      "description": "Fix code block rendering — proper language detection, copy button, inline code styling",
+      "assigned_to": "build_markdown",
+      "priority": 2
+    },
+    "confirmation": "I understand the code. It's a markdown renderer using marked.js and highlight.js, with custom code block rendering including a copy button. The current implementation has some issues: incomplete copy button text, potential language detection problems, and missing inline code styling.\n\nChanges needed:\n1. Line 45: Fix truncated string `'✓ C` → `'✓ Copied'` (or similar).\n2. Add inline code styling: modify `renderer.codespan` to wrap in `<code class=\"inline\">`.\n3. Improve language detection: ensure `lang` is properly passed and validated.\n4. Add CSS classes for styling: `.code-block`, `.code-header`, `.copy-btn`, `.inline`.\n\nQuestions:\n- Should the copy button revert after a timeout?\n- Are there specific CSS classes required for styling?\n- What languages should be prioritized for auto-detection?\n\nI'll fix the broken string and add inline code support."
+  },
+  {
+    "task": {
+      "task_id": "T6",
+      "file": "backend/sessions.py",
+      "description": "Add LocalStorage sync endpoint — export/import conversations for persistence",
+      "assigned_to": "build_backend_api",
+      "priority": 3
+    },
+    "confirmation": "I understand the task: add endpoints to export/import conversations for LocalStorage sync. The current code is an in-memory store for conversations.\n\nI will add two new endpoints in the FastAPI router file (likely `main.py` or similar). Since you only provided `sessions.py`, I'll assume I need to modify the router file. However, if you want me to add functions directly to `sessions.py` for export/import logic, I can do that instead.\n\nQuestions:\n1. Should I add the endpoints to the existing FastAPI router file?\n2. Should I add helper functions in `sessions.py` for export/import, or handle everything in the endpoints?\n3. What format should the export be? JSON?\n\nIf no router file exists, I'll create a basic one with the new endpoints. Let me know."
+  }
+]

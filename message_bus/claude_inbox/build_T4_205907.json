@@ -1,0 +1,7 @@
+{
+  "status": "done",
+  "agent": "Sidebar Builder",
+  "file": "frontend/js/sidebar.js",
+  "task": "Fix conversation list — proper date grouping, active state, delete with confirmation, refresh after actions",
+  "timestamp": "2026-04-16T20:59:07.593469"
+}

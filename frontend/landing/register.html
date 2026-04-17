@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký — SbayAI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg:#fff;--text:#1a1a1a;--muted:#888;--red:#dc2626;--red-light:#fef2f2;--red-dark:#b91c1c;--border:#eee;--error:#dc2626}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:#fafafa;color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh}
+        .card{background:#fff;border:2px solid var(--border);border-radius:20px;padding:40px;width:420px;max-width:92vw;box-shadow:0 8px 32px rgba(0,0,0,.06)}
+        .card h1{font-size:22px;font-weight:700;text-align:center;margin-bottom:4px}
+        .card .sub{color:var(--muted);text-align:center;margin-bottom:28px;font-size:14px}
+        label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+        input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:10px;font-size:15px;outline:none;font-family:inherit;margin-bottom:14px;color:var(--text);background:#fff}
+        input:focus{border-color:var(--red)}
+        .btn{width:100%;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .15s}
+        .btn-red{background:var(--red);color:#fff}
+        .btn-red:hover{background:var(--red-dark)}
+        .btn-outline{background:#fff;color:var(--red);border:2px solid var(--red);margin-top:8px}
+        .btn:disabled{opacity:.5;cursor:not-allowed}
+        .error{color:var(--error);font-size:13px;text-align:center;margin-bottom:12px;display:none}
+        .success{color:#16a34a;font-size:13px;text-align:center;margin-bottom:12px;display:none}
+        .links{text-align:center;margin-top:20px;font-size:14px;color:var(--muted)}
+        .links a{color:var(--red);font-weight:600;text-decoration:none}
+        .otp-row{display:flex;gap:8px;margin-bottom:14px}
+        .otp-row input{flex:1;text-align:center;font-size:20px;font-weight:700;letter-spacing:8px}
+        .otp-row .btn{width:auto;padding:12px 20px;font-size:13px;white-space:nowrap}
+        .step{display:none}
+        .step.active{display:block}
+        .timer{text-align:center;font-size:13px;color:var(--muted);margin-bottom:12px}
+        .zalo-badge{display:flex;align-items:center;justify-content:center;gap:6px;background:var(--red-light);border:1px solid var(--red);border-radius:10px;padding:10px;margin-bottom:16px;font-size:13px;font-weight:600;color:var(--red-dark)}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Tạo tài khoản SbayAI</h1>
+        <p class="sub">Xác thực qua Zalo để bảo mật tài khoản</p>
+        <div class="error" id="error"></div>
+        <div class="success" id="success"></div>
+
+        <!-- Step 1: Nhập thông tin + gửi OTP -->
+        <div class="step active" id="step1">
+            <label>Họ tên</label>
+            <input type="text" id="name" placeholder="Nguyễn Văn A">
+            <label>Số điện thoại (nhận mã Zalo)</label>
+            <input type="tel" id="phone" placeholder="0815340488" required>
+            <label>Email</label>
+            <input type="email" id="email" placeholder="you@example.com" required>
+            <label>Mật khẩu</label>
+            <input type="password" id="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+            <button class="btn btn-red" id="sendOtpBtn" onclick="sendOTP()">Gửi mã xác thực qua Zalo</button>
+        </div>
+
+        <!-- Step 2: Nhập OTP -->
+        <div class="step" id="step2">
+            <div class="zalo-badge">📱 Mã xác thực đã gửi qua Zalo đến <span id="otpPhone"></span></div>
+            <label>Nhập mã 6 số</label>
+            <div class="otp-row">
+                <input type="text" id="otpCode" maxlength="6" placeholder="------" autofocus>
+            </div>
+            <div class="timer" id="timer">Mã hết hạn sau <span id="countdown">300</span>s</div>
+            <button class="btn btn-red" id="verifyBtn" onclick="verifyOTP()">Xác thực & Tạo tài khoản</button>
+            <button class="btn btn-outline" onclick="resendOTP()">Gửi lại mã</button>
+        </div>
+
+        <div class="links">
+            <a href="/login">Đã có tài khoản? Đăng nhập</a><br>
+            <a href="/" style="color:var(--muted);font-weight:400">← Trang chủ</a>
+        </div>
+    </div>
+
+    <script>
+    let otpTimer = null;
+
+    function showError(msg) {
+        const el = document.getElementById('error');
+        el.textContent = msg; el.style.display = 'block';
+        document.getElementById('success').style.display = 'none';
+    }
+    function showSuccess(msg) {
+        const el = document.getElementById('success');
+        el.textContent = msg; el.style.display = 'block';
+        document.getElementById('error').style.display = 'none';
+    }
+
+    async function sendOTP() {
+        const phone = document.getElementById('phone').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const name = document.getElementById('name').value.trim();
+        const pass = document.getElementById('password').value;
+
+        if (!phone || phone.length < 9) { showError('Số điện thoại không hợp lệ'); return; }
+        if (!email || !email.includes('@')) { showError('Email không hợp lệ'); return; }
+        if (!pass || pass.length < 6) { showError('Mật khẩu tối thiểu 6 ký tự'); return; }
+
+        const btn = document.getElementById('sendOtpBtn');
+        btn.disabled = true; btn.textContent = 'Đang gửi...';
+
+        try {
+            const res = await fetch('/api/auth/send-otp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone, email, name })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail || 'Lỗi gửi OTP');
+
+            // Chuyển sang step 2
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.add('active');
+            document.getElementById('otpPhone').textContent = phone;
+            document.getElementById('otpCode').focus();
+            showSuccess('Mã xác thực đã gửi qua Zalo!');
+            startTimer(300);
+        } catch(e) {
+            showError(e.message);
+        }
+        btn.disabled = false; btn.textContent = 'Gửi mã xác thực qua Zalo';
+    }
+
+    async function verifyOTP() {
+        const phone = document.getElementById('phone').value.trim();
+        const code = document.getElementById('otpCode').value.trim();
+
+        if (!code || code.length !== 6) { showError('Nhập đủ 6 số'); return; }
+
+        const btn = document.getElementById('verifyBtn');
+        btn.disabled = true; btn.textContent = 'Đang xác thực...';
+
+        try {
+            // Verify OTP
+            const res1 = await fetch('/api/auth/verify-otp', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone, code })
+            });
+            const d1 = await res1.json();
+            if (!res1.ok) throw new Error(d1.detail || 'Mã sai hoặc hết hạn');
+
+            // OTP OK → tạo tài khoản
+            const res2 = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    phone: phone,
+                    ref: new URLSearchParams(window.location.search).get('ref') || '',
+                })
+            });
+            const d2 = await res2.json();
+            if (!res2.ok) throw new Error(d2.detail || 'Đăng ký thất bại');
+
+            localStorage.setItem('token', d2.token);
+            localStorage.setItem('user', JSON.stringify(d2.user));
+
+            // Xin vị trí
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        try {
+                            let loc = '';
+                            try { const g = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`); loc = (await g.json()).display_name || ''; } catch(_) {}
+                            await fetch('/api/auth/update-location', {
+                                method: 'POST',
+                                headers: {'Content-Type':'application/json','Authorization':'Bearer '+d2.token},
+                                body: JSON.stringify({latitude:pos.coords.latitude,longitude:pos.coords.longitude,location_name:loc.substring(0,200)})
+                            });
+                        } catch(_) {}
+                        window.location.href = '/chat';
+                    },
+                    () => { window.location.href = '/chat'; },
+                    { timeout: 8000 }
+                );
+            } else {
+                window.location.href = '/chat';
+            }
+        } catch(e) {
+            showError(e.message);
+            btn.disabled = false; btn.textContent = 'Xác thực & Tạo tài khoản';
+        }
+    }
+
+    function resendOTP() {
+        document.getElementById('otpCode').value = '';
+        sendOTP();
+    }
+
+    function startTimer(seconds) {
+        if (otpTimer) clearInterval(otpTimer);
+        let remaining = seconds;
+        const el = document.getElementById('countdown');
+        el.textContent = remaining;
+        otpTimer = setInterval(() => {
+            remaining--;
+            el.textContent = remaining;
+            if (remaining <= 0) {
+                clearInterval(otpTimer);
+                showError('Mã đã hết hạn. Nhấn "Gửi lại mã"');
+            }
+        }, 1000);
+    }
+    </script>
+</body>
+</html>

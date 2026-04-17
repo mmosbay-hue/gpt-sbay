@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard — SbayAI</title>
+    <style>
+        :root { --bg:#0d1117; --bg2:#161b22; --text:#e6edf3; --muted:#8b949e; --accent:#19c37d; --border:#30363d; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); }
+        .container { max-width:800px; margin:0 auto; padding:48px 24px; }
+        h1 { font-size:28px; margin-bottom:32px; }
+        .card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:24px; margin-bottom:16px; }
+        .card h2 { font-size:16px; color:var(--muted); margin-bottom:16px; }
+        .info-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
+        .info-row:last-child { border:none; }
+        .info-label { color:var(--muted); font-size:14px; }
+        .info-value { font-size:14px; font-weight:600; }
+        .badge { padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600; }
+        .badge-free { background:#1c2128; color:var(--muted); }
+        .badge-pro { background:rgba(25,195,125,.15); color:var(--accent); }
+        .badge-premium { background:rgba(136,87,255,.15); color:#a371f7; }
+        .btn { padding:12px 24px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; border:none; transition:all .2s; }
+        .btn-primary { background:var(--accent); color:#fff; }
+        .btn-primary:hover { background:#1a7f64; }
+        .btn-outline { background:transparent; color:var(--text); border:1px solid var(--border); }
+        .btn-outline:hover { border-color:var(--accent); }
+        .btn-danger { background:transparent; color:#f85149; border:1px solid #f85149; }
+        .progress-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin-top:8px; }
+        .progress-fill { height:100%; background:var(--accent); border-radius:4px; transition:width .3s; }
+        .actions { display:flex; gap:12px; margin-top:24px; flex-wrap:wrap; }
+        nav { display:flex; justify-content:space-between; align-items:center; padding:16px 48px; border-bottom:1px solid var(--border); }
+        nav .logo { font-size:18px; font-weight:700; }
+        nav a { color:var(--muted); font-size:14px; margin-left:16px; }
+        nav a:hover { color:var(--text); }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">SbayAI</div>
+        <div>
+            <a href="/chat">Chat</a>
+            <a href="/" id="logoutBtn" style="color:#f85149;cursor:pointer;">Logout</a>
+        </div>
+    </nav>
+    <div class="container">
+        <h1>My Account</h1>
+
+        <div class="card">
+            <h2>Profile</h2>
+            <div class="info-row"><span class="info-label">Name</span><span class="info-value" id="userName">-</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value" id="userEmail">-</span></div>
+            <div class="info-row"><span class="info-label">Plan</span><span id="userPlan">-</span></div>
+            <div class="info-row"><span class="info-label">Member since</span><span class="info-value" id="userSince">-</span></div>
+        </div>
+
+        <div class="card">
+            <h2>Usage Today</h2>
+            <div class="info-row"><span class="info-label">Messages used</span><span class="info-value"><span id="msgUsed">0</span> / <span id="msgLimit">10</span></span></div>
+            <div class="progress-bar"><div class="progress-fill" id="usageBar" style="width:0%"></div></div>
+            <div class="info-row" style="margin-top:8px"><span class="info-label">Total messages</span><span class="info-value" id="msgTotal">0</span></div>
+        </div>
+
+        <div class="card">
+            <h2>Subscription</h2>
+            <div id="subInfo">Loading...</div>
+            <div class="actions">
+                <button class="btn btn-primary" id="upgradeBtn" onclick="window.location.href='/pricing'">Upgrade Plan</button>
+                <button class="btn btn-danger" id="cancelBtn" style="display:none">Cancel Subscription</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Payment History</h2>
+            <div id="paymentHistory">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+        const headers = { 'Authorization': `Bearer ${token}` };
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        });
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/auth/me', { headers });
+                const u = await res.json();
+                document.getElementById('userName').textContent = u.name;
+                document.getElementById('userEmail').textContent = u.email;
+                document.getElementById('userPlan').innerHTML = `<span class="badge badge-${u.plan}">${u.plan.toUpperCase()}</span>`;
+                document.getElementById('userSince').textContent = new Date(u.created_at).toLocaleDateString();
+            } catch(e) { window.location.href = '/login'; }
+        }
+
+        async function loadUsage() {
+            try {
+                const res = await fetch('/api/billing/usage', { headers });
+                const d = await res.json();
+                document.getElementById('msgUsed').textContent = d.messages_today;
+                document.getElementById('msgLimit').textContent = d.messages_limit >= 999999 ? 'Unlimited' : d.messages_limit;
+                document.getElementById('msgTotal').textContent = d.messages_total;
+                const pct = d.messages_limit >= 999999 ? 5 : Math.min(100, (d.messages_today / d.messages_limit) * 100);
+                document.getElementById('usageBar').style.width = pct + '%';
+
+                if (d.plan !== 'free') {
+                    document.getElementById('cancelBtn').style.display = 'inline-block';
+                    document.getElementById('upgradeBtn').textContent = 'Change Plan';
+                    document.getElementById('subInfo').textContent = `Active ${d.plan.toUpperCase()} subscription`;
+                } else {
+                    document.getElementById('subInfo').textContent = 'You are on the free plan. Upgrade for more messages.';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadPayments() {
+            try {
+                const res = await fetch('/api/billing/history', { headers });
+                const d = await res.json();
+                if (!d.payments.length) {
+                    document.getElementById('paymentHistory').innerHTML = '<p style="color:var(--muted);font-size:14px;">No payments yet</p>';
+                    return;
+                }
+                document.getElementById('paymentHistory').innerHTML = d.payments.map(p =>
+                    `<div class="info-row"><span class="info-label">${new Date(p.created_at).toLocaleDateString()} — ${p.plan}</span><span class="info-value">${p.amount.toLocaleString()}₫</span></div>`
+                ).join('');
+            } catch(e) { console.error(e); }
+        }
+
+        document.getElementById('cancelBtn').addEventListener('click', async () => {
+            if (!confirm('Cancel your subscription?')) return;
+            await fetch('/api/billing/cancel', { method: 'POST', headers });
+            location.reload();
+        });
+
+        loadProfile(); loadUsage(); loadPayments();
+    </script>
+</body>
+</html>
