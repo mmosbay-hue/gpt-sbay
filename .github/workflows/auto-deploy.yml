@@ -22,9 +22,9 @@ jobs:
           port: 22
           script: |
             set -e
-            DEPLOY_PATH="${{ secrets.DEPLOY_PATH || '/www/wwwroot/gpt-clone' }}"
-            VENV_PATH="${{ secrets.VENV_PATH || '/www/wwwroot/gpt-clone/venv' }}"
-            SERVICE_NAME="${{ secrets.SERVICE_NAME || 'gpt-clone' }}"
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH || '/www/python/gpt-sbay' }}"
+            VENV_PATH="${{ secrets.VENV_PATH || '/www/python/gpt-sbay/venv' }}"
+            SERVICE_NAME="${{ secrets.SERVICE_NAME || 'gpt-sbay' }}"
 
             cd "$DEPLOY_PATH"
 
