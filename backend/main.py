@@ -12,6 +12,7 @@ from backend.billing.routes import router as billing_router
 from backend.admin.routes import router as admin_router
 from backend.gpts.routes import router as gpts_router
 from backend.affiliate.routes import router as affiliate_router
+from backend.deploy_webhook import router as deploy_webhook_router
 from backend.sessions import (
     list_conversations, get_conversation, delete_conversation,
     create_conversation, export_conversations, import_conversations,
@@ -40,6 +41,7 @@ app.include_router(billing_router)
 app.include_router(admin_router)
 app.include_router(gpts_router)
 app.include_router(affiliate_router)
+app.include_router(deploy_webhook_router)
 
 
 # ============ Conversation API ============
