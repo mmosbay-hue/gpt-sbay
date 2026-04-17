@@ -31,17 +31,34 @@ env/
 dist/
 build/
 *.tgz
+*.egg
 
-# Logs & runtime data
+# Data & runtime
 logs/
 *.log
 data/
 !data/.gitkeep
+data/uploads/
+data/knowledge/
+*.db
+*.sqlite
+*.sqlite3
+
+# Message bus runtime
+message_bus/**/*.json
+!message_bus/**/.gitkeep
+
+# Agent memories
+agents/memories/*.json
+!agents/memories/.gitkeep
 
 # Puppeteer / browser profiles
 puppeteer/.cache/
 puppeteer/user_data/
 .cache/
+
+# Certbot
+certbot/
 
 # IDE
 .vscode/
