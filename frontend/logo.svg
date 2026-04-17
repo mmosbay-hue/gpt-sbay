@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 60">
+  <!-- Airplane -->
+  <g transform="translate(85,8) rotate(-25)" fill="#1a5fb4">
+    <path d="M0,0 L12,-3 L8,0 L12,3 Z" fill="#1a5fb4"/>
+    <line x1="0" y1="0" x2="-8" y2="0" stroke="#1a5fb4" stroke-width="1.5"/>
+    <path d="M-4,-4 L-2,0 L-4,4" fill="none" stroke="#1a5fb4" stroke-width="1"/>
+  </g>
+  <!-- S -->
+  <text x="10" y="38" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="36" fill="#dc2626">S</text>
+  <!-- bay -->
+  <text x="32" y="38" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="36" fill="#1a5fb4">bay</text>
+  <!-- Red curve under S -->
+  <path d="M10,42 Q40,52 90,42" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- .com.vn -->
+  <text x="88" y="28" font-family="Arial,sans-serif" font-weight="700" font-size="9" fill="#dc2626">.com.vn</text>
+  <!-- Tagline -->
+  <text x="18" y="56" font-family="Arial,sans-serif" font-weight="400" font-size="8.5" fill="#1a5fb4" font-style="italic">Kiến tạo sự nghiệp</text>
+</svg>

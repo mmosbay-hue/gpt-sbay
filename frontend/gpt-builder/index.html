@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT Builder</title>
+    <style>
+        :root{--bg:#fff;--bg2:#f9f9f9;--text:#0d0d0d;--muted:#6b7280;--border:#e5e5e5;--accent:#0d7cf2;--green:#10a37f;--red:#ef4444}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:ui-sans-serif,-apple-system,system-ui,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+        .layout{display:flex;min-height:100vh}
+        .sidebar{width:280px;background:var(--bg2);border-right:1px solid var(--border);padding:16px;display:flex;flex-direction:column}
+        .sidebar h2{font-size:18px;margin-bottom:16px}
+        .gpt-list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+        .gpt-card{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+        .gpt-card:hover{background:var(--border)}
+        .gpt-card.active{background:#e0e7ff}
+        .gpt-card .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0}
+        .gpt-card .info{flex:1;min-width:0}
+        .gpt-card .info .name{font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .gpt-card .info .desc{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .create-btn{padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px}
+        .create-btn:hover{opacity:.9}
+        a.back{display:block;margin-top:12px;color:var(--muted);font-size:13px;text-align:center}
+
+        .main{flex:1;padding:32px 40px;max-width:800px}
+        .main h1{font-size:24px;margin-bottom:24px}
+        .form-group{margin-bottom:20px}
+        label{display:block;font-size:14px;font-weight:600;margin-bottom:6px}
+        input,textarea,select{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);outline:none}
+        input:focus,textarea:focus{border-color:var(--accent)}
+        textarea{resize:vertical;min-height:120px}
+        .color-row{display:flex;gap:8px;flex-wrap:wrap}
+        .color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+        .color-dot.active{border-color:var(--text)}
+        .tools-row{display:flex;gap:8px;flex-wrap:wrap}
+        .tool-chip{padding:6px 14px;border:1px solid var(--border);border-radius:20px;font-size:13px;cursor:pointer;background:var(--bg)}
+        .tool-chip.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+        .btn-row{display:flex;gap:12px;margin-top:24px}
+        .btn{padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none}
+        .btn-primary{background:var(--accent);color:#fff}
+        .btn-danger{background:var(--red);color:#fff}
+        .btn-outline{background:none;color:var(--text);border:1px solid var(--border)}
+        .btn:hover{opacity:.9}
+
+        .file-list{margin-top:8px}
+        .file-item{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:var(--bg2);border-radius:6px;font-size:13px;margin-bottom:4px}
+        .empty{color:var(--muted);font-size:14px;text-align:center;padding:40px}
+
+        .preview{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:24px}
+        .preview h3{font-size:16px;margin-bottom:12px}
+        .preview-chat{min-height:100px;background:var(--bg);border-radius:8px;padding:16px;font-size:14px;color:var(--muted)}
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <div class="sidebar">
+            <h2>GPT c&#7911;a t&#244;i</h2>
+            <div class="gpt-list" id="gptList"><div class="empty">Ch&#432;a c&#243; GPT n&#224;o</div></div>
+            <button class="create-btn" onclick="createNew()">+ T&#7841;o GPT m&#7899;i</button>
+            <a href="/chat" class="back">&#8592; Quay l&#7841;i Chat</a>
+        </div>
+        <div class="main" id="mainContent">
+            <div class="empty" style="margin-top:100px">Ch&#7885;n GPT ho&#7863;c t&#7841;o m&#7899;i</div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/login';
+        const H = {'Authorization':'Bearer '+token,'Content-Type':'application/json'};
+        let currentGptId = null;
+        const COLORS = ['#7c3aed','#2563eb','#16a34a','#ea580c','#dc2626','#0891b2','#4f46e5','#be185d'];
+        const TOOLS = ['code_exec','web_browse','file_upload'];
+
+        async function loadGpts() {
+            const res = await fetch('/api/gpts/', {headers:H});
+            const gpts = await res.json();
+            const list = document.getElementById('gptList');
+            if (!gpts.length) { list.innerHTML = '<div class="empty">Chua co GPT nao</div>'; return; }
+            list.innerHTML = gpts.map(g => `
+                <button class="gpt-card ${g.id===currentGptId?'active':''}" onclick="loadGpt('${g.id}')">
+                    <div class="av" style="background:${g.avatar_color}">${g.avatar_initials}</div>
+                    <div class="info"><div class="name">${g.name}</div><div class="desc">${g.description||'No description'}</div></div>
+                </button>`).join('');
+        }
+
+        function createNew() {
+            currentGptId = null;
+            showEditor({name:'',description:'',system_prompt:'You are a helpful assistant.',avatar_color:'#7c3aed',tools_enabled:[],knowledge_files:[]});
+        }
+
+        async function loadGpt(id) {
+            currentGptId = id;
+            const res = await fetch('/api/gpts/'+id, {headers:H});
+            const gpt = await res.json();
+            showEditor(gpt);
+            loadGpts();
+        }
+
+        function showEditor(gpt) {
+            const m = document.getElementById('mainContent');
+            m.innerHTML = `
+                <h1>${gpt.id ? 'Chinh sua GPT' : 'Tao GPT moi'}</h1>
+                <div class="form-group"><label>Ten</label><input id="gName" value="${gpt.name||''}"></div>
+                <div class="form-group"><label>Mo ta</label><input id="gDesc" value="${gpt.description||''}"></div>
+                <div class="form-group"><label>System Prompt</label><textarea id="gPrompt">${gpt.system_prompt||''}</textarea></div>
+                <div class="form-group"><label>Mau avatar</label><div class="color-row" id="colorRow"></div></div>
+                <div class="form-group"><label>Tools</label><div class="tools-row" id="toolsRow"></div></div>
+                <div class="form-group"><label>Knowledge Files</label>
+                    <input type="file" id="knowledgeFile" accept=".txt,.md,.py,.js,.json,.csv,.html,.css">
+                    <button class="btn btn-outline" style="margin-top:8px" onclick="uploadKnowledge()">Upload</button>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn btn-primary" onclick="saveGpt()">Luu</button>
+                    ${gpt.id ? '<button class="btn btn-danger" onclick="deleteGpt()">Xoa</button>' : ''}
+                    ${gpt.id ? '<button class="btn btn-outline" onclick="testChat()">Thu chat</button>' : ''}
+                </div>
+                ${gpt.id ? '<div class="preview" id="previewArea"><h3>Thu nghiem</h3><div class="preview-chat" id="previewChat">Nhap tin nhan de thu...</div><div style="display:flex;gap:8px;margin-top:12px"><input id="testInput" placeholder="Nhap tin nhan..." style="flex:1"><button class="btn btn-primary" onclick="sendTest()">Gui</button></div></div>' : ''}
+            `;
+            // Colors
+            const cr = document.getElementById('colorRow');
+            cr.innerHTML = COLORS.map(c => `<div class="color-dot ${c===(gpt.avatar_color||'#7c3aed')?'active':''}" style="background:${c}" onclick="selectColor(this,'${c}')"></div>`).join('');
+            // Tools
+            const tr = document.getElementById('toolsRow');
+            const enabled = gpt.tools_enabled || [];
+            tr.innerHTML = TOOLS.map(t => `<div class="tool-chip ${enabled.includes(t)?'active':''}" onclick="toggleTool(this,'${t}')">${t.replace('_',' ')}</div>`).join('');
+            // Files
+            if (gpt.knowledge_files?.length) {
+                document.getElementById('fileList').innerHTML = gpt.knowledge_files.map(f => `<div class="file-item">${f}</div>`).join('');
+            }
+        }
+
+        let selectedColor = '#7c3aed';
+        let selectedTools = [];
+
+        function selectColor(el, c) {
+            document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('active'));
+            el.classList.add('active');
+            selectedColor = c;
+        }
+        function toggleTool(el, t) {
+            el.classList.toggle('active');
+            if (el.classList.contains('active')) { if (!selectedTools.includes(t)) selectedTools.push(t); }
+            else { selectedTools = selectedTools.filter(x=>x!==t); }
+        }
+
+        async function saveGpt() {
+            const data = {
+                name: document.getElementById('gName').value,
+                description: document.getElementById('gDesc').value,
+                system_prompt: document.getElementById('gPrompt').value,
+                avatar_color: selectedColor,
+                tools_enabled: selectedTools,
+            };
+            const url = currentGptId ? '/api/gpts/'+currentGptId : '/api/gpts/';
+            const method = currentGptId ? 'PUT' : 'POST';
+            const res = await fetch(url, {method, headers:H, body:JSON.stringify(data)});
+            const r = await res.json();
+            if (r.id) currentGptId = r.id;
+            alert('Da luu!');
+            loadGpts();
+            if (currentGptId) loadGpt(currentGptId);
+        }
+
+        async function deleteGpt() {
+            if (!confirm('Xoa GPT nay?')) return;
+            await fetch('/api/gpts/'+currentGptId, {method:'DELETE', headers:H});
+            currentGptId = null;
+            document.getElementById('mainContent').innerHTML = '<div class="empty" style="margin-top:100px">Chon GPT hoac tao moi</div>';
+            loadGpts();
+        }
+
+        async function uploadKnowledge() {
+            const file = document.getElementById('knowledgeFile').files[0];
+            if (!file || !currentGptId) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            const res = await fetch('/api/gpts/'+currentGptId+'/knowledge', {
+                method:'POST', headers:{'Authorization':'Bearer '+token}, body:fd
+            });
+            const r = await res.json();
+            alert(r.message + ' (' + r.chunks + ' chunks)');
+            loadGpt(currentGptId);
+        }
+
+        async function sendTest() {
+            const input = document.getElementById('testInput');
+            const chat = document.getElementById('previewChat');
+            const msg = input.value.trim();
+            if (!msg) return;
+            chat.innerHTML += '<div style="margin:8px 0"><b>You:</b> '+msg+'</div>';
+            input.value = '';
+
+            const res = await fetch('/api/gpts/'+currentGptId+'/chat', {
+                method:'POST', headers:H, body:JSON.stringify({message:msg})
+            });
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '', fullText = '';
+            chat.innerHTML += '<div style="margin:8px 0" id="testResponse"><b>GPT:</b> </div>';
+            const respEl = document.getElementById('testResponse');
+
+            while (true) {
+                const {done, value} = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, {stream:true});
+                const lines = buffer.split('\\n');
+                buffer = lines.pop();
+                for (const line of lines) {
+                    if (!line.startsWith('data: ')) continue;
+                    const data = line.slice(6).trim();
+                    if (data === '[DONE]') break;
+                    try {
+                        const p = JSON.parse(data);
+                        if (p.token) { fullText += p.token; respEl.innerHTML = '<b>GPT:</b> ' + fullText; }
+                    } catch(e) {}
+                }
+            }
+        }
+
+        function testChat() {
+            const el = document.getElementById('previewArea');
+            if (el) el.scrollIntoView({behavior:'smooth'});
+        }
+
+        loadGpts();
+    </script>
+</body>
+</html>
