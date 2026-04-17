@@ -1,9 +1,17 @@
 """DeepSeek AI — sinh code, phan tich, debug."""
+import os
+from pathlib import Path
 from openai import OpenAI
 
-API_KEY = "sk-335a777d92f34d7fa0ee170b1edddfc7"
-BASE_URL = "https://api.deepseek.com"
-MODEL = "deepseek-chat"
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
+API_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+BASE_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-chat")
 
 _client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
 

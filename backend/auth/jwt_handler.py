@@ -1,8 +1,12 @@
 """JWT token creation + verification."""
+import os
 import jwt
 from datetime import datetime, timedelta, timezone
+from backend.config import JWT_SECRET
 
-SECRET_KEY = "gptweb-secret-change-in-production-2026"
+SECRET_KEY = JWT_SECRET or os.getenv("JWT_SECRET", "")
+if not SECRET_KEY:
+    raise RuntimeError("JWT_SECRET is not set. Please configure it in .env")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 24
 

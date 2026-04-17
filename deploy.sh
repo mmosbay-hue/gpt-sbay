@@ -61,6 +61,6 @@ docker compose exec app python -m backend.db.seed
 echo ""
 echo "=== DONE ==="
 echo "URL: http://$DOMAIN"
-echo "Admin: admin@gptweb.com / admin123"
+echo "Admin: email/password theo ADMIN_EMAIL / ADMIN_PASSWORD trong .env"
 echo ""
 echo ">>> NHỚ ĐỔI MẬT KHẨU ADMIN <<<"

@@ -214,7 +214,7 @@ DEL  /api/conversations/:id # Delete conversation
 from openai import OpenAI
 
 client = OpenAI(
-    api_key="sk-335a777d92f34d7fa0ee170b1edddfc7",
+    api_key=os.getenv("DEEPSEEK_API_KEY"),
     base_url="https://api.deepseek.com"
 )
 

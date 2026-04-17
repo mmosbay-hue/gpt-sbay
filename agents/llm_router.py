@@ -1,8 +1,16 @@
 """LLM Router — DeepSeek API for all agent calls."""
+import os
+from pathlib import Path
 from openai import OpenAI
 
-DEEPSEEK_KEY = "sk-335a777d92f34d7fa0ee170b1edddfc7"
-DEEPSEEK_URL = "https://api.deepseek.com"
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).resolve().parent.parent / ".env")
+except ImportError:
+    pass
+
+DEEPSEEK_KEY = os.getenv("DEEPSEEK_API_KEY", "")
+DEEPSEEK_URL = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 
 _client = OpenAI(api_key=DEEPSEEK_KEY, base_url=DEEPSEEK_URL)
 

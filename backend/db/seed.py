@@ -7,16 +7,22 @@ import bcrypt
 from backend.db.database import SessionLocal, init_db
 from backend.db.models import User, Subscription
 
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@gptweb.com")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
+
 def seed():
+    if not ADMIN_PASSWORD:
+        print("ERROR: ADMIN_PASSWORD env var is required to seed admin user.")
+        return
+
     init_db()
     db = SessionLocal()
 
-    # Check if admin exists
-    admin = db.query(User).filter(User.email == "admin@gptweb.com").first()
+    admin = db.query(User).filter(User.email == ADMIN_EMAIL).first()
     if not admin:
         admin = User(
-            email="admin@gptweb.com",
-            password_hash=bcrypt.hashpw(b"admin123", bcrypt.gensalt()).decode(),
+            email=ADMIN_EMAIL,
+            password_hash=bcrypt.hashpw(ADMIN_PASSWORD.encode(), bcrypt.gensalt()).decode(),
             name="Admin",
             role="admin",
             plan="premium",
@@ -25,7 +31,7 @@ def seed():
         db.flush()
         db.add(Subscription(user_id=admin.id, plan="premium", status="active"))
         db.commit()
-        print(f"Admin created: admin@gptweb.com / admin123")
+        print(f"Admin created: {ADMIN_EMAIL}")
     else:
         print("Admin already exists")
 

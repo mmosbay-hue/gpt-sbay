@@ -31,7 +31,7 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY", "")
 
 # JWT
-JWT_SECRET = os.getenv("JWT_SECRET", "gptweb-secret-change-in-production-2026")
+JWT_SECRET = os.getenv("JWT_SECRET", "")
 
 # Domain
 DOMAIN = os.getenv("DOMAIN", "localhost:8080")
