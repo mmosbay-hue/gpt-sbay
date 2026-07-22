@@ -164,13 +164,24 @@ async def api_upload(file: UploadFile = File(...)):
 
 @app.get("/api/uploads/{name}")
 async def api_get_upload(name: str):
-    """Phuc vu file upload."""
+    """Phuc vu file upload. Neu ban local da bi offload len Dropbox -> redirect."""
     # Chong path traversal
     safe = Path(name).name  # strip path components
     fp = UPLOAD_DIR / safe
-    if not fp.exists() or not fp.is_file():
-        raise HTTPException(status_code=404, detail="File not found")
-    return FileResponse(str(fp))
+    if fp.exists() and fp.is_file():
+        return FileResponse(str(fp))
+
+    # Fallback: file da duoc day len Dropbox de giai phong o dia
+    try:
+        from backend.dropbox_backup import fetch_upload_link
+        from fastapi.responses import RedirectResponse
+        link = fetch_upload_link(safe)
+        if link:
+            return RedirectResponse(url=link, status_code=302)
+    except Exception:
+        pass
+
+    raise HTTPException(status_code=404, detail="File not found")
 
 
 @app.get("/api/tts")

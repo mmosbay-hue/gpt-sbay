@@ -205,3 +205,44 @@ def admin_user_usage(user_id: str, admin: User = Depends(require_admin)):
     daily = get_user_usage(user_id, 30)
     stats = get_usage_stats(user_id)
     return {"daily": daily, "stats": stats}
+
+
+@router.get("/backup/status")
+def backup_status(admin: User = Depends(require_admin)):
+    """Kiểm tra Dropbox đã cấu hình chưa + dung lượng data/ hiện tại."""
+    import os as _os
+    from backend.dropbox_backup import is_configured, DATA_DIR, UPLOAD_DIR
+
+    def _dir_size(path):
+        total = 0
+        if _os.path.isdir(path):
+            for root, _dirs, files in _os.walk(path):
+                for fn in files:
+                    try:
+                        total += _os.path.getsize(_os.path.join(root, fn))
+                    except OSError:
+                        pass
+        return total
+
+    uploads_count = len([f for f in UPLOAD_DIR.iterdir() if f.is_file()]) if UPLOAD_DIR.exists() else 0
+    return {
+        "dropbox_configured": is_configured(),
+        "data_bytes": _dir_size(DATA_DIR),
+        "uploads_bytes": _dir_size(UPLOAD_DIR),
+        "uploads_count": uploads_count,
+    }
+
+
+@router.post("/backup")
+async def trigger_backup(free_space: bool = True, admin: User = Depends(require_admin)):
+    """Backup thủ công lên Dropbox ngay (tuỳ chọn giải phóng ổ đĩa)."""
+    from starlette.concurrency import run_in_threadpool
+    from backend.dropbox_backup import run_backup, DropboxNotConfigured
+
+    try:
+        report = await run_in_threadpool(run_backup, free_space)
+        return report
+    except DropboxNotConfigured as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Backup failed: {e}")
